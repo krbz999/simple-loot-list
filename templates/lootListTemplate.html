@@ -1,39 +1,31 @@
-<form>
-    <div class="form-group SLL-item-list-add">
-        <div class="form-fields">
-            <input class="SLL-ondrop-box" type="text" disabled placeholder="Drop item here...">
-        </div>
+<form class="SLL-form">
+    <div class="SLL-item-list-add">
+        <input class="SLL-ondrop-box" type="text" disabled="" placeholder="Drop item here...">
     </div>
-    <hr>
-    <div class="SLL-item-list">
-        <div class="form-group SLL-item-list-header">
-            <div class="form-fields SLL-header-fields">
-                <label class="SLL-header-quantity">#</label>
-                <label class="SLL-header-pack">Compendium</label>
-                <label class="SLL-header-id">Item Id</label>
-                <label class="SLL-header-name">Item Name</label>
-                <button class="SLL-header-button">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </div>
-        </div>
-        {{#each lootItems as |item|}}
-        <div class="form-group SLL-item-row">
-            <div class="form-fields SLL-item-fields">
-                <input type="text" class="SLL-item-quantity" value="{{item.quantity}}">
-                <input type="text" class="SLL-item-pack" value="{{item.pack}}">
-                <input type="text" class="SLL-item-id" value="{{item.id}}">
-                <input type="text" class="SLL-item-name" value="{{item.name}}">
-                <button class="SLL-item-delete">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </div>
-        </div>
-        {{/each}}
-    </div>
-    <hr>
+
+    <table class="SLL-item-list">
+        <thead class="SLL-item-list-header">
+            <tr class="SLL-header-row">
+                <th class="SLL-header-quantity">Quantity</th>
+                <th class="SLL-header-name">Item</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each lootItems as |item|}}
+            <tr class="SLL-item-row">
+                <td class="SLL-item-quantity">
+                    <input type="text" value="{{item.quantity}}">
+                </td>
+                <td class="SLL-item-name" data-pack="{{item.pack}}" data-id="{{item.id}}" data-uuid="{{item.uuid}}">{{item.name}}</td>
+                <td class="SLL-item-delete"><button class="SLL-item-delete"><i class="fas fa-trash"></i></button></td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+
     <header class="SLL-item-list-save">
-        <button type="submit" name="submit" class="SLL-item-list-save-button">
+        <button name="submit" class="SLL-item-list-save-button">
             <i class="fas fa-save"></i> Save List
         </button>
     </header>

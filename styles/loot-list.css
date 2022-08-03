@@ -8,40 +8,58 @@ input.SLL-ondrop-box:hover {
     border-style: dotted;
 }
 
-.SLL-header-fields label {
-    flex: 1 !important;
+table.SLL-item-list {
+    border: ridge;
+    border-color: darkgray;
 }
-label.SLL-header-quantity {
+
+th.SLL-header-quantity {
     font-weight: bold;
     margin: 0 3px 0 0;
     padding: 1px 3px;
+    white-space: nowrap;
 }
-label.SLL-header-pack {
+th.SLL-header-pack {
     text-align: center;
     font-weight: bold;
     margin: 0 3px 0 0;
+    white-space: nowrap;
 }
-label.SLL-header-id {
-    text-align: center;
-    font-weight: bold;
-    margin: 0 3px 0 0;
-}
-label.SLL-header-name {
+th.SLL-header-name {
     text-align: center;
     font-weight: bold;
     margin: 0 0 0 0;
-}
-button.SLL-header-button {
-    visibility: hidden;
+    white-space: nowrap;
 }
 
-input.SLL-item-quantity, label.SLL-header-quantity {
+td.SLL-item-quantity, th.SLL-header-quantity {
     text-align: center;
-    max-width: 10%;
+    width: 15%;
 }
-input.SLL-item-pack, label.SLL-header-pack {
-    max-width: 25%;
+td.SLL-item-name {
+    color: #4b4a44;
+    font-size: 13px;
+    font-weight: bold;
+    padding: 0 0 0 5px;
+    font-family: var(--font-primary);
 }
-input.SLL-item-id, label.SLL-header-id {
-    max-width: 20%;
+td.SLL-item-name:hover {
+    filter: drop-shadow(0 0 5px red);
+    cursor: pointer;
+}
+td.SLL-item-delete {
+    width: 0;
+}
+button.SLL-item-delete {
+    width: 34px;
+    height: 34px;
+    background: inherit;
+    border: none;
+}
+button.SLL-item-delete:hover {
+    filter: drop-shadow(0 0 5px red);
+    box-shadow: 0 0 0 red;
+}
+button.SLL-item-delete > i {
+    margin-right: 0px;
 }

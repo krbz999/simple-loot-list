@@ -41,35 +41,33 @@ export class LootList extends FormApplication {
 		if(type !== "Item"){
 			return ui.notifications.warn("You can only add items to the loot list.");
 		}
+
 		if(!id){
-			return ui.notifications.warn("Something has gone terribly wrong.");
+			if(data.data?._id) return ui.notifications.warn("You cannot add an item from an actor.");
+			else return ui.notifications.warn("Something has gone terribly wrong.");
 		}
 
-		// must be item-type loot, container, equipment, weapon, consumable.
-		const item = !!pack ? await fromUuid(`Compendium.${pack}.${id}`) : game.items.get(id);
+		// must be item-type tool, loot, backpack, equipment, weapon, consumable.
+		const uuid = !!pack ? `Compendium.${pack}.${id}` : game.items.get(id).uuid;
+		const item = await fromUuid(uuid);
 		const validItemTypes = ["weapon", "equipment", "consumable", "tool", "loot", "backpack"];
 		if(!validItemTypes.includes(item.type)){
 			return ui.notifications.warn(`You cannot add a ${item.type} to the loot list.`);
 		}
 
-		const list = this.element[0].querySelector("div.SLL-item-list");
-
-		//const link = await TextEditor.enrichHTML(item.link);
+		const list = this.element[0].querySelector("table.SLL-item-list > tbody");
 
 		// append:
-		const newItem = document.createElement("div");
-		newItem.classList.toggle("form-group");
+		const newItem = document.createElement("tr");
 		newItem.classList.toggle("SLL-item-row");
 		newItem.innerHTML = `
-		<div class="form-fields SLL-item-fields">
-			<input type="text" class="SLL-item-quantity" value="1">
-			<input type="text" class="SLL-item-pack" value="${pack ?? ''}">
-			<input type="text" class="SLL-item-id" value="${id}">
-			<input type="text" class="SLL-item-name" value="${item.name}">
-			<button class="SLL-item-delete">
-				<i class="fas fa-trash"></i>
-			</button>
-		</div>`;
+		<td class="SLL-item-quantity">
+			<input type="text" value="1">
+		</td>
+		<td class="SLL-item-name" data-pack="${pack ?? ''}" data-id="${id}" data-uuid="${item.uuid}">${item.name}</td>
+		<td class="SLL-item-delete">
+			<button class="SLL-item-delete"><i class="fas fa-trash"></i></button>
+		</td>`;
 		
 		
 		list.appendChild(newItem);
@@ -85,16 +83,15 @@ export class LootList extends FormApplication {
 		const lootArray = [];
 		const rows = html.querySelectorAll(".SLL-item-row");
 		for(let row of rows){
-			const quantity = row.querySelector(".SLL-item-quantity").value;
-			const pack = row.querySelector(".SLL-item-pack").value;
-			const id = row.querySelector(".SLL-item-id").value;
-			const name = row.querySelector(".SLL-item-name").value;
+			const quantity = row.querySelector(".SLL-item-quantity > input").value;
+			const name = row.querySelector("td.SLL-item-name");
+			if(!name) continue;
+			const {uuid, pack, id} = name.dataset;
 
-			if(!quantity || !id || !name) continue;
+			if(!quantity || !id) continue;
 
-			lootArray.push({quantity, pack, id, name});
+			lootArray.push({quantity, pack, id, uuid, name: name.innerText});
 		}
-
 		
 		await this.actor.setFlag("simple-loot-list", "loot-list", lootArray);
 		this.close();
@@ -103,14 +100,21 @@ export class LootList extends FormApplication {
 	activateListeners(html){
 		super.activateListeners(html);
 		const sheet = this.element[0];
-		html[0].addEventListener("click", (event) => {
-			const button = event.target.closest("button.SLL-item-delete");
-			if(!button) return;
-
-			const row = button.closest("div.form-group.SLL-item-row");
-			if(row){
-				row.remove();
-				sheet.style.height = "auto";
+		html[0].addEventListener("click", async (event) => {
+			const deleteButton = event.target.closest("button.SLL-item-delete");
+			const itemName = event.target.closest("td.SLL-item-name");
+			if(!!deleteButton){
+				const row = deleteButton.closest("tr.SLL-item-row");
+				if(row){
+					row.remove();
+					sheet.style.height = "auto";
+				}
+			}
+			if(!!itemName){
+				const {uuid, pack, id} = itemName.dataset;
+				const item = !!uuid ? await fromUuid(uuid) : !!pack ? await fromUuid(`Compendium.${pack}.${id}`) : game.items.get(id);
+				if(!item) return;
+				return item.sheet.render(true);
 			}
 		});
 	}
