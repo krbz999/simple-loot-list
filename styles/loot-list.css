@@ -19,12 +19,6 @@ th.SLL-header-quantity {
     padding: 1px 3px;
     white-space: nowrap;
 }
-th.SLL-header-pack {
-    text-align: center;
-    font-weight: bold;
-    margin: 0 3px 0 0;
-    white-space: nowrap;
-}
 th.SLL-header-name {
     text-align: center;
     font-weight: bold;
