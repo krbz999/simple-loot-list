@@ -1,32 +1,38 @@
 <form class="SLL-form">
+
     <div class="SLL-item-list-add">
-        <input class="SLL-ondrop-box" type="text" disabled="" placeholder="Drop item here...">
+        <input class="SLL-ondrop-box" type="text" disabled placeholder="{{labels.DROP_ITEM}}">
     </div>
 
-    <table class="SLL-item-list">
-        <thead class="SLL-item-list-header">
-            <tr class="SLL-header-row">
-                <th class="SLL-header-quantity">Quantity</th>
-                <th class="SLL-header-name">Item</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
+    <section class="SLL-item-list-section">
+
+        <header class="SLL-item-list-header flexrow">
+            <div class="SLL-header-quantity">{{labels.QUANTITY}}</div>
+            <div class="SLL-header-name">{{labels.ITEM}}</div>
+        </header>
+
+        <ol class="SLL-item-list">
             {{#each lootItems as |item|}}
-            <tr class="SLL-item-row">
-                <td class="SLL-item-quantity">
+            <li class="SLL-item-row flexrow">
+                <div class="SLL-item-quantity">
                     <input type="text" value="{{item.quantity}}">
-                </td>
-                <td class="SLL-item-name" data-pack="{{item.pack}}" data-id="{{item.id}}" data-uuid="{{item.uuid}}">{{item.name}}</td>
-                <td class="SLL-item-delete"><button class="SLL-item-delete"><i class="fas fa-trash"></i></button></td>
-            </tr>
+                </div>
+                <div class="SLL-item-name" data-pack="{{item.pack}}" data-id="{{item.id}}" data-uuid="{{item.uuid}}">{{item.name}}</div>
+                <div class="SLL-item-delete">
+                    <a class="SLL-item-delete">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </div>
+            </li>
             {{/each}}
-        </tbody>
-    </table>
+        </ol>
+
+    </section>
 
     <header class="SLL-item-list-save">
         <button name="submit" class="SLL-item-list-save-button">
-            <i class="fas fa-save"></i> Save List
+            <i class="fas fa-save"></i> {{labels.SAVE}}
         </button>
     </header>
+    
 </form>

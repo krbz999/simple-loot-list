@@ -1,2 +1,17 @@
 {
+    "SIMPLE_LOOT_LIST": {
+        "WARNING": {
+            "ONLY_ITEMS": "You can only add items to the loot list.",
+            "ACTOR_ITEM": "You cannot add an item from an actor.",
+            "MAJOR_ERROR": "Something has gone terribly wrong.",
+            "ITEM_TYPE": "You cannot add a {type} to the loot list."
+        },
+        "LABEL": {
+            "DROP_ITEM": "Drop item here...",
+            "QUANTITY": "Quantity",
+            "ITEM": "Item",
+            "SAVE": "Save List",
+            "LIST_TITLE": "Loot List: {name}"
+        }
+    }
 }

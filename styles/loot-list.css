@@ -2,58 +2,68 @@ input.SLL-ondrop-box {
     height: 100px;
     border-radius: 20px;
     text-align: center;
+    backdrop-filter: contrast(0.75);
+    font-style: italic;
+}
+input.SLL-ondrop-box.drag-over {
+    border-color: black !important;
     border-style: dotted;
 }
 input.SLL-ondrop-box:hover {
-    border-style: dotted;
+    border: none;
+}
+input.SLL-ondrop-box::placeholder {
+    color: black;
+}
+input.SLL-ondrop-box.drag-over::placeholder {
+    color: inherit;
+    opacity: 10%;
 }
 
-table.SLL-item-list {
-    border: ridge;
-    border-color: darkgray;
+section.SLL-item-list-section {
+    padding-top: 5px;
 }
-
-th.SLL-header-quantity {
+header.SLL-item-list-header.flexrow {
+    height: 28px;
+    background: rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--color-border-light-tertiary);
     font-weight: bold;
-    margin: 0 3px 0 0;
-    padding: 1px 3px;
-    white-space: nowrap;
+    align-content: center;
 }
-th.SLL-header-name {
+
+div.SLL-header-quantity {
     text-align: center;
-    font-weight: bold;
-    margin: 0 0 0 0;
-    white-space: nowrap;
+}
+div.SLL-header-name {
+    flex: 4;
+    text-align: left;
 }
 
-td.SLL-item-quantity, th.SLL-header-quantity {
+ol.SLL-item-list {
+    padding-left: 0;
+    margin: 0.25em 0 0.25em 0;
+}
+
+li.SLL-item-row.flexrow {
+    align-items: center;
+    padding: 0.25em 0 0.25em 0;
+}
+div.SLL-item-quantity {
+    flex: 1;
     text-align: center;
-    width: 15%;
 }
-td.SLL-item-name {
-    color: #4b4a44;
-    font-size: 13px;
+div.SLL-item-name {
+    flex: 4;
     font-weight: bold;
-    padding: 0 0 0 5px;
-    font-family: var(--font-primary);
+    padding: 0.25em 0 0.25em 0.5em;
 }
-td.SLL-item-name:hover {
+div.SLL-item-name:hover {
     filter: drop-shadow(0 0 5px red);
     cursor: pointer;
 }
-td.SLL-item-delete {
-    width: 0;
+div.SLL-item-delete {
+    flex: 0;
 }
-button.SLL-item-delete {
-    width: 34px;
-    height: 34px;
-    background: inherit;
-    border: none;
-}
-button.SLL-item-delete:hover {
-    filter: drop-shadow(0 0 5px red);
-    box-shadow: 0 0 0 red;
-}
-button.SLL-item-delete > i {
-    margin-right: 0px;
+a.SLL-item-delete {
+    padding: 0 0.5em 0 0.5em;
 }
