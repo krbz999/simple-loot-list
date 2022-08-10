@@ -1,7 +1,7 @@
 {
 	"id": "simple-loot-list",
-	"title": "Simple Loot List",
 	"name": "simple-loot-list",
+	"title": "Simple Loot List",
 	"version": "v0.0.3",
 	"authors": [{
 		"name": "Zhell",
@@ -9,10 +9,10 @@
 		"discord": "Zhell#9201",
 		"ko-fi": "https://ko-fi.com/zhell"
 	}],
-	"minimumCoreVersion": "9",
-	"compatibility": {
-		"minimum": "10"
-	},
+	"minimumCoreVersion": "10",
+	"compatibility": {"minimum": "10"},
+	"esmodules": ["./setup.js"],
+	"styles": ["./styles/loot-list.css"],
 	"relationships": {
 		"systems": [{
 			"id": "dnd5e",
@@ -20,14 +20,12 @@
 			"manifest": "https://raw.githubusercontent.com/foundryvtt/dnd5e/master/system.json"
 		}]
 	},
-	"esmodules": ["./setup.js"],
-	"styles": ["./styles/loot-list.css"],
 	"languages": [{
 		"lang": "en",
 		"name": "English",
 		"path": "lang/en.json",
 		"title": "Simple Loot List",
-		"description": "placeholder text."
+		"description": "This module provides a loot list on actors where a GM can store references to items from either the Item directory or an Item compendium."
 	}],
 	"url": "https://github.com/krbz999/simple-loot-list",
 	"manifest": "https://github.com/krbz999/simple-loot-list/releases/latest/download/module.json",

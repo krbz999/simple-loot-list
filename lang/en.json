@@ -12,6 +12,12 @@
             "ITEM": "Item",
             "SAVE": "Save List",
             "LIST_TITLE": "Loot List: {name}"
+        },
+        "SETTINGS": {
+            "HEADER_LABEL": {
+                "NAME": "Show Label",
+                "HINT": "Uncheck to hide the label on actor sheet headers."
+            }
         }
     }
 }

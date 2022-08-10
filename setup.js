@@ -1,21 +1,31 @@
 import { MODULE_TITLE, MODULE_TITLE_SHORT, HEADER_BUTTON, MODULE_NAME } from "./scripts/const.mjs";
 import { LootList } from "./scripts/lootList.mjs";
-//import { api } from "./scripts/api.mjs";
 
 Hooks.once("init", () => {
     console.log(`${MODULE_TITLE_SHORT} | Initializing ${MODULE_TITLE}`);
-    //api.register();
-});
+    
+    game.settings.register(MODULE_NAME, "headerLabel", {
+        name: game.i18n.localize("SIMPLE_LOOT_LIST.SETTINGS.HEADER_LABEL.NAME"),
+        hint: game.i18n.localize("SIMPLE_LOOT_LIST.SETTINGS.HEADER_LABEL.HINT"),
+        scope: "world",
+        config: true,
+        type: Boolean,
+        default: false
+    });
+    
+    Hooks.on("getActorSheetHeaderButtons", (app, array) => {
+        if(!game.user.isGM) return;
 
-Hooks.on("getActorSheetHeaderButtons", (app, array) => {
-    if(!game.user.isGM) return;
-    const listButton = {
-        class: MODULE_NAME,
-        icon: "fas fa-coins",
-        label: HEADER_BUTTON,
-        onclick: async () => {
-            new LootList(app.object).render(true);
+        const label = game.settings.get(MODULE_NAME, "headerLabel");
+
+        const listButton = {
+            class: MODULE_NAME,
+            icon: "fas fa-coins",
+            onclick: async () => {
+                new LootList(app.object).render(true);
+            }
         }
-    }
-    array.unshift(listButton);
+        if(label) listButton.label = HEADER_BUTTON;
+        array.unshift(listButton);
+    });
 });

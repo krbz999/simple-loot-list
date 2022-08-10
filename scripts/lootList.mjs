@@ -47,29 +47,28 @@ export class LootList extends FormApplication {
 			return false;
 		}
 		
-		const {type, pack, id} = data;
-		if(type !== "Item"){
+		// must be an item.
+		if(data.type !== "Item"){
 			const warn = game.i18.localize("SIMPLE_LOOT_LIST.WARNING.ONLY_ITEMS");
 			return ui.notifications.warn(warn);
 		}
-		if(!id){
-			if(data.data?._id){
-				const warn = game.i18n.localize("SIMPLE_LOOT_LIST.WARNING.ACTOR_ITEM");
-				return ui.notifications.warn(warn);
-			} 
-			else{
-				const warn = game.i18n.localize("SIMPLE_LOOT_LIST.WARNING.MAJOR_ERROR");
-				return ui.notifications.warn(warn);
-			}
+		// must have a uuid (it always has).
+		if(!data.uuid){
+			const warn = game.i18n.localize("SIMPLE_LOOT_LIST.WARNING.MAJOR_ERROR");
+			return ui.notifications.warn(warn);
+		}
+		// cannot be an owned item (uuid starts with 'Scene' or 'Actor').
+		if(data.uuid.startsWith("Scene") || data.uuid.startsWith("Actor")){
+			const warn = game.i18n.localize("SIMPLE_LOOT_LIST.WARNING.ACTOR_ITEM");
+			return ui.notifications.warn(warn);
 		}
 		
-		const uuid = !!pack ? `Compendium.${pack}.${id}` : game.items.get(id).uuid;
-		const item = await fromUuid(uuid);
+		const {type, name} = await fromUuid(data.uuid);
 
 		// must be valid item-type.
 		const validItemTypes = ["weapon", "equipment", "consumable", "tool", "loot", "backpack"];
-		if(!validItemTypes.includes(item.type)){
-			const warn = game.i18n.format("SIMPLE_LOOT_LIST.WARNING.ITEM_TYPE", {type: item.type});
+		if(!validItemTypes.includes(type)){
+			const warn = game.i18n.format("SIMPLE_LOOT_LIST.WARNING.ITEM_TYPE", {type});
 			return ui.notifications.warn(warn);
 		}
 
@@ -82,7 +81,7 @@ export class LootList extends FormApplication {
 		<div class="SLL-item-quantity">
 			<input type="text" value="1">
 		</div>
-		<div class="SLL-item-name" data-pack="${pack ?? ''}" data-id="${id}" data-uuid="${item.uuid}">${item.name}</div>
+		<div class="SLL-item-name" data-uuid="${data.uuid}">${name}</div>
 		<div class="SLL-item-delete">
 			<a class="SLL-item-delete">
 				<i class="fas fa-trash"></i>
@@ -108,13 +107,13 @@ export class LootList extends FormApplication {
 		const rows = html.querySelectorAll(".SLL-item-row");
 		for(let row of rows){
 			const quantity = row.querySelector(".SLL-item-quantity > input").value;
-			const name = row.querySelector("div.SLL-item-name");
-			if(!name) continue;
+			const {dataset, innerText: name} = row.querySelector("div.SLL-item-name");
+			if(!dataset) continue;
 			
-			const {uuid, pack, id} = name.dataset;
-			if(!quantity || !id) continue;
+			const {uuid} = dataset;
+			if(!quantity || !uuid) continue;
 
-			lootArray.push({quantity, pack, id, uuid, name: name.innerText});
+			lootArray.push({quantity, uuid, name});
 		}
 		
 		await this.actor.setFlag(MODULE_NAME, LOOT_LIST, lootArray);
@@ -135,8 +134,8 @@ export class LootList extends FormApplication {
 				}
 			}
 			if(!!itemName){
-				const {uuid, pack, id} = itemName.dataset;
-				const item = !!uuid ? await fromUuid(uuid) : !!pack ? await fromUuid(`Compendium.${pack}.${id}`) : game.items.get(id);
+				const {uuid} = itemName.dataset;
+				const item = await fromUuid(uuid);
 				if(!item) return;
 				return item.sheet.render(true);
 			}
