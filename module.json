@@ -25,7 +25,7 @@
 		"name": "English",
 		"path": "lang/en.json",
 		"title": "Simple Loot List",
-		"description": "This module provides a loot list on actors where a GM can store references to items from either the Item directory or an Item compendium."
+		"description": "This module provides a loot list on actors where a GM can store references to items."
 	}],
 	"url": "https://github.com/krbz999/simple-loot-list",
 	"manifest": "https://github.com/krbz999/simple-loot-list/releases/latest/download/module.json",

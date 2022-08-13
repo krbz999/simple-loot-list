@@ -9,18 +9,18 @@ export class SLL_HELPERS {
         If no valid items, return false.
     */
     static async validDrops(data){
-        console.log(data);
         const validItemTypes = [
             "weapon", "equipment", "consumable",
             "tool", "loot", "backpack"
         ];
 
         // must be either a folder of items, or an item.
-        const isFolder = data.type === "Folder" && data.documentName === "Item";
+        const isFolder = data.type === "Folder";
         const isItem = data.type === "Item";
         const isTable = data.type === "RollTable";
+
         if(!isFolder && !isItem && !isTable){
-            const warn = game.i18n.localize("SIMPLE_LOOT_LIST.WARNING.ONLY_ITEMS");
+            const warn = game.i18n.localize("SIMPLE_LOOT_LIST.WARNING.INVALID_DOCUMENT");
 			ui.notifications.warn(warn);
             return false;
         }
@@ -44,7 +44,7 @@ export class SLL_HELPERS {
             }
             // must be valid item-type.
             if(!validItemTypes.includes(droppedDoc.type)){
-                const warn = game.i18n.format("SIMPLE_LOOT_LIST.WARNING.ITEM_TYPE", {
+                const warn = game.i18n.format("SIMPLE_LOOT_LIST.WARNING.INVALID_DOCUMENT", {
                     type: droppedDoc.type
                 });
                 ui.notifications.warn(warn);
@@ -56,6 +56,12 @@ export class SLL_HELPERS {
 
         // case 2: folder of items.
         if(isFolder){
+            // must be a folder of items.
+            if(data.documentName !== "Item"){
+                const warn = game.i18n.localize("SIMPLE_LOOT_LIST.WARNING.INVALID_DOCUMENT");
+				ui.notifications.warn(warn);
+                return false;
+            }
             // must have at least one valid item.
             const items = game.items.filter(i => {
                 if(i.folder !== droppedDoc) return false;
