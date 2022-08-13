@@ -1,4 +1,5 @@
 import { MODULE_NAME, LOOT_LIST, MODULE_TITLE } from "./const.mjs";
+import { SLL_HELPERS } from "./helpers.mjs";
 
 export class LootList extends FormApplication {
 	
@@ -46,49 +47,28 @@ export class LootList extends FormApplication {
 		catch(err){
 			return false;
 		}
-		
-		// must be an item.
-		if(data.type !== "Item"){
-			const warn = game.i18.localize("SIMPLE_LOOT_LIST.WARNING.ONLY_ITEMS");
-			return ui.notifications.warn(warn);
-		}
-		// must have a uuid (it always has).
-		if(!data.uuid){
-			const warn = game.i18n.localize("SIMPLE_LOOT_LIST.WARNING.MAJOR_ERROR");
-			return ui.notifications.warn(warn);
-		}
-		// cannot be an owned item (uuid starts with 'Scene' or 'Actor').
-		if(data.uuid.startsWith("Scene") || data.uuid.startsWith("Actor")){
-			const warn = game.i18n.localize("SIMPLE_LOOT_LIST.WARNING.ACTOR_ITEM");
-			return ui.notifications.warn(warn);
-		}
-		
-		const {type, name} = await fromUuid(data.uuid);
-
-		// must be valid item-type.
-		const validItemTypes = ["weapon", "equipment", "consumable", "tool", "loot", "backpack"];
-		if(!validItemTypes.includes(type)){
-			const warn = game.i18n.format("SIMPLE_LOOT_LIST.WARNING.ITEM_TYPE", {type});
-			return ui.notifications.warn(warn);
-		}
-
-		const list = this.element[0].querySelector("ol.SLL-item-list");
+		const items = await SLL_HELPERS.validDrops(data);
+		if(!items) return;
 
 		// append:
-		const newItem = document.createElement("li");
-		newItem.classList.add("SLL-item-row", "flexrow");
-		newItem.innerHTML = `
-		<div class="SLL-item-quantity">
-			<input type="text" value="1">
-		</div>
-		<div class="SLL-item-name" data-uuid="${data.uuid}">${name}</div>
-		<div class="SLL-item-delete">
-			<a class="SLL-item-delete">
-				<i class="fas fa-trash"></i>
-			</a>
-		</div>`;
-		
-		list.appendChild(newItem);
+		const list = this.element[0].querySelector("ol.SLL-item-list");
+		for(let {uuid, name} of items){
+			const newItem = document.createElement("li");
+			newItem.classList.add("SLL-item-row", "flexrow");
+			newItem.innerHTML = `
+			<div class="SLL-item-quantity">
+				<input type="text" value="1">
+			</div>
+			<div class="SLL-item-name" data-uuid="${uuid}">${name}</div>
+			<div class="SLL-item-delete">
+				<a class="SLL-item-delete">
+					<i class="fas fa-trash"></i>
+				</a>
+			</div>`;
+			
+			list.appendChild(newItem);
+			
+		}
 		this.setPosition();
 	}
 
