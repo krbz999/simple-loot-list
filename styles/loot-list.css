@@ -67,3 +67,13 @@ div.SLL-item-delete {
 a.SLL-item-delete {
     padding: 0 0.5em 0 0.5em;
 }
+.SLL-item-list-button-row {
+    display: grid;
+    grid-template-columns: auto auto;
+    margin-bottom: -4px;
+    justify-content: space-between;
+}
+.SLL-item-list-button-row > button {
+    margin-bottom: 4px;
+    min-width: 263px;
+}

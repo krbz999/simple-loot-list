@@ -32,6 +32,9 @@ export class LootList extends FormApplication {
 			QUANTITY: game.i18n.localize("SIMPLE_LOOT_LIST.LABEL.QUANTITY"),
 			ITEM: game.i18n.localize("SIMPLE_LOOT_LIST.LABEL.ITEM"),
 			SAVE: game.i18n.localize("SIMPLE_LOOT_LIST.LABEL.SAVE"),
+			GRANT: game.i18n.localize("SIMPLE_LOOT_LIST.LABEL.GRANT"),
+			CLEAR: game.i18n.localize("SIMPLE_LOOT_LIST.LABEL.CLEAR"),
+			CANCEL: game.i18n.localize("SIMPLE_LOOT_LIST.LABEL.CANCEL")
 		}
 		return data;
 	}
@@ -53,20 +56,19 @@ export class LootList extends FormApplication {
 		// append:
 		const list = this.element[0].querySelector("ol.SLL-item-list");
 		for(let {uuid, name} of items){
-			const newItem = document.createElement("li");
-			newItem.classList.add("SLL-item-row", "flexrow");
-			newItem.innerHTML = `
-			<div class="SLL-item-quantity">
-				<input type="text" value="1">
-			</div>
-			<div class="SLL-item-name" data-uuid="${uuid}">${name}</div>
-			<div class="SLL-item-delete">
-				<a class="SLL-item-delete">
-					<i class="fas fa-trash"></i>
-				</a>
-			</div>`;
-			
-			list.appendChild(newItem);
+			// find any current row with the same item.
+			const valueNode = SLL_HELPERS.findDuplicates(this.element, uuid);
+
+			// if no node, create new row.
+			if(!valueNode){
+				const div = document.createElement("DIV");
+				div.innerHTML = await SLL_HELPERS.createNewRow(uuid, name);
+				list.appendChild(div.firstChild);
+			}
+			// increase the value of the existing row.
+			else{
+				valueNode.value = SLL_HELPERS.appendQuantity(valueNode);
+			}
 			
 		}
 		this.setPosition();
@@ -81,22 +83,30 @@ export class LootList extends FormApplication {
 	async _updateObject(event, obj){
 		event.stopPropagation();
 		const html = event.target;
+		const button = event.submitter;
+		if(!button) return;
+
+		// delete the list.
+		if(button.name === "clear"){
+			const rows = html.querySelectorAll("li.SLL-item-row");
+			for(let li of rows) li.remove();
+			this.setPosition();
+			return;
+		}
+		// just close, don't save.
+		if(button.name === "cancel") return this.close();
+		// if grant, must have target.
+		if(button.name === "grant"){
+			const target = game.user.targets.first().document.uuid;
+			const lootArray = SLL_HELPERS.getRowDataFromHTML(html);
+			return SLL_HELPERS.grantItemsToTarget(lootArray, target);
+		}
+		// if not one of the above, should be 'submit'.
+		if(button.name !== "submit") return;
 
 		// for each entry, add to object.
-		const lootArray = [];
-		const rows = html.querySelectorAll(".SLL-item-row");
-		for(let row of rows){
-			const quantity = row.querySelector(".SLL-item-quantity > input").value;
-			const {dataset, innerText: name} = row.querySelector("div.SLL-item-name");
-			if(!dataset) continue;
-			
-			const {uuid} = dataset;
-			if(!quantity || !uuid) continue;
-
-			lootArray.push({quantity, uuid, name});
-		}
-		
-		await this.actor.setFlag(MODULE_NAME, LOOT_LIST, lootArray);
+		const lootArray = SLL_HELPERS.getRowDataFromHTML(html);
+		await SLL_HELPERS.updateLootList(lootArray, this.actor);
 		this.close();
 	}
 

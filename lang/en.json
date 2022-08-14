@@ -4,13 +4,17 @@
             "ACTOR_ITEM": "You cannot add an item from an actor.",
             "MAJOR_ERROR": "Something has gone terribly wrong.",
             "EMPTY_DOCUMENT": "The document contains no valid items.",
-            "INVALID_DOCUMENT": "The document is not a valid type."
+            "INVALID_DOCUMENT": "The document is not a valid type.",
+            "CREATED_ITEMS": "Created {amount} items on {name}."
         },
         "LABEL": {
             "DROP_ITEM": "Drop item here...",
             "QUANTITY": "Quantity",
             "ITEM": "Item",
             "SAVE": "Save List",
+            "GRANT": "Grant to Target",
+            "CLEAR": "Clear",
+            "CANCEL": "Cancel",
             "LIST_TITLE": "Loot List: {name}"
         },
         "SETTINGS": {
