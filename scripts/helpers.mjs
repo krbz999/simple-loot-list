@@ -21,14 +21,14 @@ export class SLL_HELPERS {
         const isItem = data.type === "Item";
         const isTable = data.type === "RollTable";
 
-        if(!isFolder && !isItem && !isTable){
+        if( !isFolder && !isItem && !isTable ) {
             const warn = game.i18n.localize("SIMPLE_LOOT_LIST.WARNING.INVALID_DOCUMENT");
 			ui.notifications.warn(warn);
             return false;
         }
 
         // must have a uuid (it always has).
-		if(!data.uuid){
+		if( !data.uuid ){
 			const warn = game.i18n.localize("SIMPLE_LOOT_LIST.WARNING.MAJOR_ERROR");
 			return ui.notifications.warn(warn);
 		}
@@ -37,15 +37,15 @@ export class SLL_HELPERS {
         const droppedDoc = await fromUuid(data.uuid);
 
         // case 1: single item.
-        if(isItem){
+        if( isItem ){
             // cannot be an owned item (uuid starts with 'Scene' or 'Actor').
-		    if(data.uuid.startsWith("Scene") || data.uuid.startsWith("Actor")){
+		    if( data.uuid.startsWith("Scene") || data.uuid.startsWith("Actor") ) {
                 const warn = game.i18n.localize("SIMPLE_LOOT_LIST.WARNING.ACTOR_ITEM");
                 ui.notifications.warn(warn);
                 return false;
             }
             // must be valid item-type.
-            if(!validItemTypes.includes(droppedDoc.type)){
+            if( !validItemTypes.includes(droppedDoc.type) ) {
                 const warn = game.i18n.format("SIMPLE_LOOT_LIST.WARNING.INVALID_DOCUMENT", {
                     type: droppedDoc.type
                 });
@@ -57,20 +57,20 @@ export class SLL_HELPERS {
         }
 
         // case 2: folder of items.
-        if(isFolder){
+        if ( isFolder ) {
             // must be a folder of items.
-            if(data.documentName !== "Item"){
+            if ( data.documentName !== "Item" ) {
                 const warn = game.i18n.localize("SIMPLE_LOOT_LIST.WARNING.INVALID_DOCUMENT");
 				ui.notifications.warn(warn);
                 return false;
             }
             // must have at least one valid item.
             const items = game.items.filter(i => {
-                if(i.folder !== droppedDoc) return false;
-                if(!validItemTypes.includes(i.type)) return false;
+                if ( i.folder !== droppedDoc ) return false;
+                if ( !validItemTypes.includes(i.type) ) return false;
                 return true;
             });
-            if(!items.length){
+            if ( !items.length ) {
                 const warn = game.i18n.localize("SIMPLE_LOOT_LIST.WARNING.EMPTY_DOCUMENT");
 				ui.notifications.warn(warn);
                 return false;
@@ -80,20 +80,20 @@ export class SLL_HELPERS {
         }
 
         // case 3: rolltable.
-        if(isTable){
+        if ( isTable ) {
             // must have valid results embedded.
             const {DOCUMENT, COMPENDIUM} = CONST.TABLE_RESULT_TYPES;
             const uuids = droppedDoc.results.filter(i => {
-                if(![DOCUMENT, COMPENDIUM].includes(i.type)) return false;
-                if(!i.documentCollection) return false;
+                if ( ![DOCUMENT, COMPENDIUM].includes(i.type) ) return false;
+                if ( !i.documentCollection ) return false;
                 return true;
             }).map(i => {
                 const coll = i.documentCollection;
                 const id = i.documentId;
-                if(DOCUMENT === i.type) return `${coll}.${id}`;
+                if ( DOCUMENT === i.type ) return `${coll}.${id}`;
                 return `Compendium.${coll}.${id}`;
             });
-            if(!uuids.length){
+            if ( !uuids.length ) {
                 const warn = game.i18n.localize("SIMPLE_LOOT_LIST.WARNING.EMPTY_DOCUMENT");
 				ui.notifications.warn(warn);
                 return false;
@@ -103,11 +103,11 @@ export class SLL_HELPERS {
                 return fromUuid(i);
             }));
             const items = itemDocs.filter(i => {
-                if(!i) return false;
-                if(!validItemTypes.includes(i.type)) return false;
+                if ( !i ) return false;
+                if ( !validItemTypes.includes(i.type) ) return false;
                 return true;
             });
-            if(!items.length){
+            if ( !items.length ) {
                 const warn = game.i18n.localize("SIMPLE_LOOT_LIST.WARNING.EMPTY_DOCUMENT");
 				ui.notifications.warn(warn);
                 return false;
@@ -124,7 +124,7 @@ export class SLL_HELPERS {
     */
     static findDuplicates(html, uuid){
         const found = html[0].querySelector(`.SLL-item-name[data-uuid="${uuid}"]`);
-        if(!found) return false;
+        if ( !found ) return false;
 
         const row = found.closest(".SLL-item-row");
         const valueNode = row.querySelector(".SLL-item-quantity > input");
@@ -157,13 +157,13 @@ export class SLL_HELPERS {
     static getRowDataFromHTML(html){
         const lootArray = [];
         const rows = html.querySelectorAll(".SLL-item-row");
-        for(let row of rows){
+        for ( let row of rows ) {
             const quantity = row.querySelector(".SLL-item-quantity > input").value;
             const {dataset, innerText: name} = row.querySelector("div.SLL-item-name");
-            if(!dataset) continue;
+            if ( !dataset ) continue;
             const {uuid} = dataset;
-            if(!quantity || !uuid) continue;
-            lootArray.push({quantity, uuid, name});
+            if ( !quantity || !uuid ) continue;
+            lootArray.push({ quantity, uuid, name });
         }
         return lootArray;
     }
@@ -174,7 +174,7 @@ export class SLL_HELPERS {
     */
     static async updateLootList(array, actor){
         // if no array passed, unset the flag.
-        if(!array || !array.length){
+        if ( !array || !array.length ) {
             return actor.unsetFlag(MODULE_NAME, LOOT_LIST);
         }
 
@@ -190,7 +190,7 @@ export class SLL_HELPERS {
     static async grantItemsToTarget(array, targetUuid){
         const {actor: target} = await fromUuid(targetUuid);
         const items = [];
-        for(let {quantity, uuid} of array){
+        for ( let {quantity, uuid} of array ) {
             const item = await fromUuid(uuid);
             const {total} = await new Roll(quantity, target.getRollData()).evaluate({async: true});
             const itemData = item.toObject();
@@ -204,5 +204,4 @@ export class SLL_HELPERS {
         ui.notifications.info(info);
         return created;
     }
-
 }

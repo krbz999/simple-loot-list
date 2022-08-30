@@ -1,8 +1,8 @@
-import { MODULE_TITLE, MODULE_TITLE_SHORT, HEADER_BUTTON, MODULE_NAME } from "./scripts/const.mjs";
+import { HEADER_BUTTON, MODULE_NAME } from "./scripts/const.mjs";
 import { LootList } from "./scripts/lootList.mjs";
 
 Hooks.once("init", () => {
-    console.log(`${MODULE_TITLE_SHORT} | Initializing ${MODULE_TITLE}`);
+    console.log("ZHELL | Initializing Simple Loot List");
     
     game.settings.register(MODULE_NAME, "headerLabel", {
         name: game.i18n.localize("SIMPLE_LOOT_LIST.SETTINGS.HEADER_LABEL.NAME"),

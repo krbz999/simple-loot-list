@@ -1,4 +1,4 @@
-import { MODULE_NAME, LOOT_LIST, MODULE_TITLE } from "./const.mjs";
+import { MODULE_NAME, LOOT_LIST } from "./const.mjs";
 import { SLL_HELPERS } from "./helpers.mjs";
 
 export class LootList extends FormApplication {
@@ -16,7 +16,7 @@ export class LootList extends FormApplication {
 			template: "/modules/simple-loot-list/templates/lootListTemplate.html",
 			height: "auto",
 			dragDrop: [{ dragSelector: null, dropSelector: ".SLL-item-list-add" }],
-			title: MODULE_TITLE
+			title: "Simple Loot List"
 		});
 	}
 
@@ -27,15 +27,6 @@ export class LootList extends FormApplication {
 	async getData(options){
 		let data = super.getData(options);
 		data.lootItems = this.lootItems;
-		data.labels = {
-			DROP_ITEM: game.i18n.localize("SIMPLE_LOOT_LIST.LABEL.DROP_ITEM"),
-			QUANTITY: game.i18n.localize("SIMPLE_LOOT_LIST.LABEL.QUANTITY"),
-			ITEM: game.i18n.localize("SIMPLE_LOOT_LIST.LABEL.ITEM"),
-			SAVE: game.i18n.localize("SIMPLE_LOOT_LIST.LABEL.SAVE"),
-			GRANT: game.i18n.localize("SIMPLE_LOOT_LIST.LABEL.GRANT"),
-			CLEAR: game.i18n.localize("SIMPLE_LOOT_LIST.LABEL.CLEAR"),
-			CANCEL: game.i18n.localize("SIMPLE_LOOT_LIST.LABEL.CANCEL")
-		}
 		return data;
 	}
 	
@@ -44,29 +35,29 @@ export class LootList extends FormApplication {
 		event.target.closest(".SLL-ondrop-box").classList.remove("drag-over");
 
 		let data;
-		try{
+		try {
 			data = JSON.parse(event.dataTransfer.getData("text/plain"));
 		}
-		catch(err){
+		catch ( err ) {
 			return false;
 		}
 		const items = await SLL_HELPERS.validDrops(data);
-		if(!items) return;
+		if ( !items ) return;
 
 		// append:
 		const list = this.element[0].querySelector("ol.SLL-item-list");
-		for(let {uuid, name} of items){
+		for ( let {uuid, name} of items ) {
 			// find any current row with the same item.
 			const valueNode = SLL_HELPERS.findDuplicates(this.element, uuid);
 
 			// if no node, create new row.
-			if(!valueNode){
+			if ( !valueNode ) {
 				const div = document.createElement("DIV");
 				div.innerHTML = await SLL_HELPERS.createNewRow(uuid, name);
 				list.appendChild(div.firstChild);
 			}
 			// increase the value of the existing row.
-			else{
+			else {
 				valueNode.value = SLL_HELPERS.appendQuantity(valueNode);
 			}
 			
@@ -76,7 +67,7 @@ export class LootList extends FormApplication {
 
 	async _onDragOver(event){
 		const dropPoint = event.target.closest(".SLL-ondrop-box");
-		if(!dropPoint) return;
+		if ( !dropPoint ) return;
 		dropPoint.classList.add("drag-over");
 	}
 
@@ -84,25 +75,25 @@ export class LootList extends FormApplication {
 		event.stopPropagation();
 		const html = event.target;
 		const button = event.submitter;
-		if(!button) return;
+		if ( !button ) return;
 
 		// delete the list.
-		if(button.name === "clear"){
+		if ( button.name === "clear" ) {
 			const rows = html.querySelectorAll("li.SLL-item-row");
-			for(let li of rows) li.remove();
+			for ( let li of rows ) li.remove();
 			this.setPosition();
 			return;
 		}
 		// just close, don't save.
-		if(button.name === "cancel") return this.close();
+		if ( button.name === "cancel" ) return this.close();
 		// if grant, must have target.
-		if(button.name === "grant"){
+		if ( button.name === "grant" ) {
 			const target = game.user.targets.first().document.uuid;
 			const lootArray = SLL_HELPERS.getRowDataFromHTML(html);
 			return SLL_HELPERS.grantItemsToTarget(lootArray, target);
 		}
 		// if not one of the above, should be 'submit'.
-		if(button.name !== "submit") return;
+		if ( button.name !== "submit" ) return;
 
 		// for each entry, add to object.
 		const lootArray = SLL_HELPERS.getRowDataFromHTML(html);
@@ -116,24 +107,24 @@ export class LootList extends FormApplication {
 		html[0].addEventListener("click", async (event) => {
 			const deleteButton = event.target.closest("div.SLL-item-delete");
 			const itemName = event.target.closest("div.SLL-item-name");
-			if(!!deleteButton){
+			if ( !!deleteButton ) {
 				const row = deleteButton.closest("li.SLL-item-row");
-				if(row){
+				if ( row ) {
 					row.remove();
 					app.setPosition();
 				}
 			}
-			if(!!itemName){
+			if ( !!itemName ) {
 				const {uuid} = itemName.dataset;
 				const item = await fromUuid(uuid);
-				if(!item) return;
+				if ( !item ) return;
 				return item.sheet.render(true);
 			}
 		});
 
 		html[0].addEventListener("dragleave", (event) => {
 			const dropPoint = event.target.closest(".SLL-ondrop-box");
-			if(dropPoint){
+			if ( dropPoint ) {
 				dropPoint.classList.remove("drag-over");
 			}
 		});

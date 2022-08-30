@@ -9,20 +9,14 @@ input.SLL-ondrop-box.drag-over {
     border-color: black !important;
     border-style: dotted;
 }
-input.SLL-ondrop-box:hover {
-    border: none;
-}
-input.SLL-ondrop-box::placeholder {
-    color: black;
-}
+input.SLL-ondrop-box:hover { border: none; }
+input.SLL-ondrop-box::placeholder { color: black; }
 input.SLL-ondrop-box.drag-over::placeholder {
     color: inherit;
     opacity: 10%;
 }
 
-section.SLL-item-list-section {
-    padding-top: 5px;
-}
+section.SLL-item-list-section { padding-top: 5px; }
 header.SLL-item-list-header.flexrow {
     height: 28px;
     background: rgba(0, 0, 0, 0.1);
@@ -31,9 +25,7 @@ header.SLL-item-list-header.flexrow {
     align-content: center;
 }
 
-div.SLL-header-quantity {
-    text-align: center;
-}
+div.SLL-header-quantity { text-align: center; }
 div.SLL-header-name {
     flex: 4;
     text-align: left;
@@ -61,12 +53,8 @@ div.SLL-item-name:hover {
     filter: drop-shadow(0 0 5px red);
     cursor: pointer;
 }
-div.SLL-item-delete {
-    flex: 0;
-}
-a.SLL-item-delete {
-    padding: 0 0.5em 0 0.5em;
-}
+div.SLL-item-delete { flex: 0; }
+a.SLL-item-delete { padding: 0 0.5em 0 0.5em; }
 .SLL-item-list-button-row {
     display: grid;
     grid-template-columns: auto auto;
