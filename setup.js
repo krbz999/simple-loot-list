@@ -1,4 +1,4 @@
-import { HEADER_BUTTON, MODULE_NAME } from "./scripts/const.mjs";
+import { MODULE_NAME } from "./scripts/const.mjs";
 import { LootList } from "./scripts/lootList.mjs";
 
 Hooks.once("init", () => {
@@ -14,7 +14,7 @@ Hooks.once("init", () => {
     });
     
     Hooks.on("getActorSheetHeaderButtons", (app, array) => {
-        if(!game.user.isGM) return;
+        if ( !game.user.isGM ) return;
 
         const label = game.settings.get(MODULE_NAME, "headerLabel");
 
@@ -25,7 +25,9 @@ Hooks.once("init", () => {
                 new LootList(app.object).render(true);
             }
         }
-        if(label) listButton.label = HEADER_BUTTON;
+        if ( label ) {
+            listButton.label = game.i18n.localize("SIMPLE_LOOT_LIST.HEADER");
+        }
         array.unshift(listButton);
     });
 });

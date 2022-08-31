@@ -1,33 +1,48 @@
 {
 	"id": "simple-loot-list",
-	"name": "simple-loot-list",
-	"title": "Simple Loot List",
-	"version": "v0.0.4",
-	"authors": [{
-		"name": "Zhell",
-		"url": "https://github.com/krbz999",
-		"discord": "Zhell#9201",
-		"ko-fi": "https://ko-fi.com/zhell"
-	}],
-	"minimumCoreVersion": "10",
-	"compatibility": {"minimum": "10"},
-	"esmodules": ["./setup.js"],
-	"styles": ["./styles/loot-list.css"],
+    "title": "Simple Loot List",
+    "version": "v10.0.0",
+    "authors": [
+        {
+            "name": "Zhell",
+            "url": "https://github.com/krbz999",
+            "discord": "Zhell#9201",
+            "ko-fi": "https://ko-fi.com/zhell"
+        }
+    ],
+    "compatibility": {
+        "minimum": "10",
+        "verified": "10.279",
+        "maximum": "10"
+    },
+    "esmodules": [
+        "./setup.js"
+    ],
+	"styles": [
+        "./styles/loot-list.css"
+    ],
 	"relationships": {
-		"systems": [{
-			"id": "dnd5e",
-			"type": "system",
-			"manifest": "https://raw.githubusercontent.com/foundryvtt/dnd5e/master/system.json"
-		}]
-	},
-	"languages": [{
-		"lang": "en",
-		"name": "English",
-		"path": "lang/en.json",
-		"title": "Simple Loot List",
-		"description": "This module provides a loot list on actors where a GM can store references to items."
-	}],
+        "systems": [
+            {
+                "id": "dnd5e",
+                "type": "system",
+                "manifest": "https://raw.githubusercontent.com/foundryvtt/dnd5e/master/system.json",
+                "compatibility": {}
+            }
+        ]
+    },
+	"languages": [
+        {
+            "lang": "en",
+            "name": "English",
+            "path": "lang/en.json",
+            "title": "Simple Loot List",
+            "description": "This module provides a loot list on actors where a GM can store references to items."
+        }
+    ],
 	"url": "https://github.com/krbz999/simple-loot-list",
-	"manifest": "https://raw.githubusercontent.com/krbz999/simple-loot-list/main/module.json",
-	"download": "https://github.com/krbz999/simple-loot-list/releases/download/v0.0.4/module.zip"
+	"manifest": "https://raw.githubusercontent.com/krbz999/simple-loot-list/releases/latest/download/module.json",
+	"download": "https://github.com/krbz999/simple-loot-list/releases/download/v10.0.0/module.zip",
+    "name": "simple-loot-list",
+    "minimumCoreVersion": "10"
 }

@@ -4,8 +4,12 @@ import { SLL_HELPERS } from "./helpers.mjs";
 export class LootList extends FormApplication {
 	
 	constructor(actor){
-		super();
+		super(actor);
 		this.actor = actor;
+	}
+
+	get id(){
+		return `simple-loot-list-${this.actor.id}`;
 	}
 	
 	static get defaultOptions() {
@@ -16,7 +20,7 @@ export class LootList extends FormApplication {
 			template: "/modules/simple-loot-list/templates/lootListTemplate.html",
 			height: "auto",
 			dragDrop: [{ dragSelector: null, dropSelector: ".SLL-item-list-add" }],
-			title: "Simple Loot List"
+			title: game.i18n.localize("SIMPLE_LOOT_LIST.TITLE")
 		});
 	}
 

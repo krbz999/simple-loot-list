@@ -12,8 +12,12 @@ export class SLL_HELPERS {
     */
     static async validDrops(data){
         const validItemTypes = [
-            "weapon", "equipment", "consumable",
-            "tool", "loot", "backpack"
+            "weapon",
+            "equipment",
+            "consumable",
+            "tool",
+            "loot",
+            "backpack"
         ];
 
         // must be either a folder of items, or an item.
@@ -30,7 +34,8 @@ export class SLL_HELPERS {
         // must have a uuid (it always has).
 		if( !data.uuid ){
 			const warn = game.i18n.localize("SIMPLE_LOOT_LIST.WARNING.MAJOR_ERROR");
-			return ui.notifications.warn(warn);
+			ui.notifications.warn(warn);
+            return false;
 		}
 
         // the dropped document.
@@ -136,7 +141,7 @@ export class SLL_HELPERS {
     */
     static appendQuantity(valueNode){
         const value = valueNode.value + "+1";
-        const additive = game.dnd5e.dice.simplifyRollFormula(value);
+        const additive = dnd5e.dice.simplifyRollFormula(value);
         return additive;
     }
 
@@ -185,10 +190,10 @@ export class SLL_HELPERS {
     /*
         Get all the items on the loot list and add them
         to the target. Return the list of items.
-        Ui.notification too.
+        ui.notification too.
     */
     static async grantItemsToTarget(array, targetUuid){
-        const {actor: target} = await fromUuid(targetUuid);
+        const {actor: target} = fromUuidSync(targetUuid);
         const items = [];
         for ( let {quantity, uuid} of array ) {
             const item = await fromUuid(uuid);

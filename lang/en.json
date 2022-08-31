@@ -22,6 +22,8 @@
                 "NAME": "Show Label",
                 "HINT": "Uncheck to hide the label on actor sheet headers."
             }
-        }
+        },
+        "TITLE": "Simple Loot List",
+        "HEADER": "Loot List"
     }
 }
