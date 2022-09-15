@@ -27,16 +27,16 @@ export class SLL_HELPERS {
 
         if( !isFolder && !isItem && !isTable ) {
             const warn = game.i18n.localize("SIMPLE_LOOT_LIST.WARNING.INVALID_DOCUMENT");
-			ui.notifications.warn(warn);
+            ui.notifications.warn(warn);
             return false;
         }
 
         // must have a uuid (it always has).
-		if( !data.uuid ){
-			const warn = game.i18n.localize("SIMPLE_LOOT_LIST.WARNING.MAJOR_ERROR");
-			ui.notifications.warn(warn);
+        if( !data.uuid ){
+            const warn = game.i18n.localize("SIMPLE_LOOT_LIST.WARNING.MAJOR_ERROR");
+            ui.notifications.warn(warn);
             return false;
-		}
+        }
 
         // the dropped document.
         const droppedDoc = await fromUuid(data.uuid);
@@ -44,7 +44,7 @@ export class SLL_HELPERS {
         // case 1: single item.
         if( isItem ){
             // cannot be an owned item (uuid starts with 'Scene' or 'Actor').
-		    if( data.uuid.startsWith("Scene") || data.uuid.startsWith("Actor") ) {
+            if( data.uuid.startsWith("Scene") || data.uuid.startsWith("Actor") ) {
                 const warn = game.i18n.localize("SIMPLE_LOOT_LIST.WARNING.ACTOR_ITEM");
                 ui.notifications.warn(warn);
                 return false;
@@ -66,7 +66,7 @@ export class SLL_HELPERS {
             // must be a folder of items.
             if ( data.documentName !== "Item" ) {
                 const warn = game.i18n.localize("SIMPLE_LOOT_LIST.WARNING.INVALID_DOCUMENT");
-				ui.notifications.warn(warn);
+                ui.notifications.warn(warn);
                 return false;
             }
             // must have at least one valid item.
@@ -77,7 +77,7 @@ export class SLL_HELPERS {
             });
             if ( !items.length ) {
                 const warn = game.i18n.localize("SIMPLE_LOOT_LIST.WARNING.EMPTY_DOCUMENT");
-				ui.notifications.warn(warn);
+                ui.notifications.warn(warn);
                 return false;
             }
             // return the items.
@@ -87,7 +87,7 @@ export class SLL_HELPERS {
         // case 3: rolltable.
         if ( isTable ) {
             // must have valid results embedded.
-            const {DOCUMENT, COMPENDIUM} = CONST.TABLE_RESULT_TYPES;
+            const { DOCUMENT, COMPENDIUM } = CONST.TABLE_RESULT_TYPES;
             const uuids = droppedDoc.results.filter(i => {
                 if ( ![DOCUMENT, COMPENDIUM].includes(i.type) ) return false;
                 if ( !i.documentCollection ) return false;
@@ -100,21 +100,21 @@ export class SLL_HELPERS {
             });
             if ( !uuids.length ) {
                 const warn = game.i18n.localize("SIMPLE_LOOT_LIST.WARNING.EMPTY_DOCUMENT");
-				ui.notifications.warn(warn);
+                ui.notifications.warn(warn);
                 return false;
             }
             // get the items, then check if they are valid.
             const itemDocs = await Promise.all(uuids.map(i => {
                 return fromUuid(i);
             }));
-            const items = itemDocs.filter(i => {
-                if ( !i ) return false;
-                if ( !validItemTypes.includes(i.type) ) return false;
+            const items = itemDocs.filter(item => {
+                if ( !item ) return false;
+                if ( !validItemTypes.includes(item.type) ) return false;
                 return true;
             });
             if ( !items.length ) {
                 const warn = game.i18n.localize("SIMPLE_LOOT_LIST.WARNING.EMPTY_DOCUMENT");
-				ui.notifications.warn(warn);
+                ui.notifications.warn(warn);
                 return false;
             }
             // return the items.
@@ -162,9 +162,9 @@ export class SLL_HELPERS {
     static getRowDataFromHTML(html){
         const lootArray = [];
         const rows = html.querySelectorAll(".SLL-item-row");
-        for ( let row of rows ) {
+        for ( const row of rows ) {
             const quantity = row.querySelector(".SLL-item-quantity > input").value;
-            const {dataset, innerText: name} = row.querySelector("div.SLL-item-name");
+            const { dataset, innerText: name } = row.querySelector("div.SLL-item-name");
             if ( !dataset ) continue;
             const {uuid} = dataset;
             if ( !quantity || !uuid ) continue;
@@ -193,18 +193,26 @@ export class SLL_HELPERS {
         ui.notification too.
     */
     static async grantItemsToTarget(array, targetUuid){
-        const {actor: target} = fromUuidSync(targetUuid);
+        const { actor: target } = fromUuidSync(targetUuid);
         const items = [];
-        for ( let {quantity, uuid} of array ) {
+        for ( const { quantity, uuid } of array ) {
             const item = await fromUuid(uuid);
-            const {total} = await new Roll(quantity, target.getRollData()).evaluate({async: true});
+            if ( !item ) {
+                const warning = "SIMPLE_LOOT_LIST.WARNING.ITEM_NOT_FOUND";
+                const locale = game.i18n.format(warning, { uuid });
+                ui.notifications.warn(locale);
+                continue;
+            }
+            const data = target.getRollData();
+            const { total } = await new Roll(quantity, data).evaluate({ async: true });
             const itemData = item.toObject();
             itemData.system.quantity = total;
             items.push(itemData);
         }
         const created = await target.createEmbeddedDocuments("Item", items);
         const info = game.i18n.format("SIMPLE_LOOT_LIST.WARNING.CREATED_ITEMS", {
-            amount: created.length, name: target.name
+            amount: created.length,
+            name: target.name
         });
         ui.notifications.info(info);
         return created;
