@@ -65,6 +65,14 @@ export class LootList extends FormApplication {
             }
             
         }
+        if ( items.length > 1 ) {
+            const string = "SIMPLE_LOOT_LIST.WARNING.ADDED_ITEMS_TO_LIST";
+            const locale = game.i18n.format(string, {
+                amount: items.length,
+                name: this.actor.name
+            });
+            ui.notifications.info(locale);
+        }
         this.setPosition();
     }
 

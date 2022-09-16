@@ -5,9 +5,9 @@ export class SLL_HELPERS {
     /* 
         Returns an array of valid items from a dropped document.
         
-        If single document, and it is valid, return it, wrapped
-        in an array. If a folder, with at least 1 valid item in
-        it, return the array of valid items.
+        If single document, and it is valid, return it in an array.
+        If a folder with at least 1 valid item in it, return the array of valid items.
+        If a rolltable with at least 1 valid item in it, return the array of valid items.
         If no valid items, return false.
     */
     static async validDrops(data){
