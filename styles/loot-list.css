@@ -5,18 +5,29 @@ input.SLL-ondrop-box {
     backdrop-filter: contrast(0.75);
     font-style: italic;
 }
+
 input.SLL-ondrop-box.drag-over {
     border-color: black !important;
     border-style: dotted;
 }
-input.SLL-ondrop-box:hover { border: none; }
-input.SLL-ondrop-box::placeholder { color: black; }
+
+input.SLL-ondrop-box:hover {
+    border: none;
+}
+
+input.SLL-ondrop-box::placeholder {
+    color: black;
+}
+
 input.SLL-ondrop-box.drag-over::placeholder {
     color: inherit;
     opacity: 10%;
 }
 
-section.SLL-item-list-section { padding-top: 5px; }
+section.SLL-item-list-section {
+    padding-top: 5px;
+}
+
 header.SLL-item-list-header.flexrow {
     height: 28px;
     background: rgba(0, 0, 0, 0.1);
@@ -25,7 +36,10 @@ header.SLL-item-list-header.flexrow {
     align-content: center;
 }
 
-div.SLL-header-quantity { text-align: center; }
+div.SLL-header-quantity {
+    text-align: center;
+}
+
 div.SLL-header-name {
     flex: 4;
     text-align: left;
@@ -34,34 +48,52 @@ div.SLL-header-name {
 ol.SLL-item-list {
     padding-left: 0;
     margin: 0.25em 0 0.25em 0;
+    max-height: 500px;
+    overflow-y: scroll;
 }
 
-li.SLL-item-row.flexrow {
+li.SLL-item-row {
     align-items: center;
     padding: 0.25em 0 0.25em 0;
+    display: grid;
+    grid-template-columns: 15% 60% 5%;
 }
+
 div.SLL-item-quantity {
-    flex: 1;
     text-align: center;
 }
+
 div.SLL-item-name {
-    flex: 4;
     font-weight: bold;
     padding: 0.25em 0 0.25em 0.5em;
+    transition: 0.3s;
+    transition-property: transform, filter;
+    transform-origin: left;
 }
+
 div.SLL-item-name:hover {
     filter: drop-shadow(0 0 5px red);
     cursor: pointer;
+    transform: scale(1.1);
 }
-div.SLL-item-delete { flex: 0; }
-a.SLL-item-delete { padding: 0 0.5em 0 0.5em; }
+
+div.SLL-item-delete {
+    grid-column-end: none;
+    margin-left: auto;
+}
+
+a.SLL-item-delete {
+    padding: 0 0.5em 0 0.5em;
+}
+
 .SLL-item-list-button-row {
     display: grid;
     grid-template-columns: auto auto;
     margin-bottom: -4px;
     justify-content: space-between;
 }
-.SLL-item-list-button-row > button {
+
+.SLL-item-list-button-row button {
     margin-bottom: 4px;
     min-width: 263px;
 }
