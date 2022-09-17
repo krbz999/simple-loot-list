@@ -28,7 +28,7 @@ export class LootList extends FormApplication {
     }
 
     async getData(options){
-        let data = super.getData(options);
+        let data = await super.getData(options);
         data.lootItems = this.lootItems;
         return data;
     }
@@ -66,12 +66,10 @@ export class LootList extends FormApplication {
             
         }
         if ( items.length > 1 ) {
-            const string = "SIMPLE_LOOT_LIST.WARNING.ADDED_ITEMS_TO_LIST";
-            const locale = game.i18n.format(string, {
+            SLL_HELPERS.warning("SIMPLE_LOOT_LIST.WARNING.ADDED_ITEMS_TO_LIST", {
                 amount: items.length,
                 name: this.actor.name
-            });
-            ui.notifications.info(locale);
+            }, "info");
         }
         this.setPosition();
     }
@@ -82,7 +80,7 @@ export class LootList extends FormApplication {
         dropPoint.classList.add("drag-over");
     }
 
-    async _updateObject(event, obj){
+    async _updateObject(event, formData){
         event.stopPropagation();
         const html = event.target;
         const button = event.submitter;
@@ -118,22 +116,20 @@ export class LootList extends FormApplication {
         html[0].addEventListener("click", async (event) => {
             const deleteButton = event.target.closest("div.SLL-item-delete");
             const itemName = event.target.closest("div.SLL-item-name");
-            if ( !!deleteButton ) {
+            if ( deleteButton ) {
                 const row = deleteButton.closest("li.SLL-item-row");
                 if ( row ) {
                     row.remove();
                     app.setPosition();
                 }
             }
-            if ( !!itemName ) {
+            if ( itemName ) {
                 const { uuid } = itemName.dataset;
                 const item = await fromUuid(uuid);
                 if ( !item ) {
-                    const warning = "SIMPLE_LOOT_LIST.WARNING.NO_SUCH_ITEM";
-                    const locale = game.i18n.format(warning, {
+                    SLL_HELPERS.warning("SIMPLE_LOOT_LIST.WARNING.NO_SUCH_ITEM", {
                         name: itemName.innerText
                     });
-                    ui.notifications.warn(locale);
                     return;
                 }
                 return item.sheet.render(true);

@@ -26,15 +26,13 @@ export class SLL_HELPERS {
         const isTable = data.type === "RollTable";
 
         if( !isFolder && !isItem && !isTable ) {
-            const warn = game.i18n.localize("SIMPLE_LOOT_LIST.WARNING.INVALID_DOCUMENT");
-            ui.notifications.warn(warn);
+            this.warning("SIMPLE_LOOT_LIST.WARNING.INVALID_DOCUMENT");
             return false;
         }
 
         // must have a uuid (it always has).
         if( !data.uuid ){
-            const warn = game.i18n.localize("SIMPLE_LOOT_LIST.WARNING.MAJOR_ERROR");
-            ui.notifications.warn(warn);
+            this.warning("SIMPLE_LOOT_LIST.WARNING.MAJOR_ERROR")
             return false;
         }
 
@@ -45,16 +43,14 @@ export class SLL_HELPERS {
         if( isItem ){
             // cannot be an owned item (uuid starts with 'Scene' or 'Actor').
             if( data.uuid.startsWith("Scene") || data.uuid.startsWith("Actor") ) {
-                const warn = game.i18n.localize("SIMPLE_LOOT_LIST.WARNING.ACTOR_ITEM");
-                ui.notifications.warn(warn);
+                this.warning("SIMPLE_LOOT_LIST.WARNING.ACTOR_ITEM");
                 return false;
             }
             // must be valid item-type.
             if( !validItemTypes.includes(droppedDoc.type) ) {
-                const warn = game.i18n.format("SIMPLE_LOOT_LIST.WARNING.INVALID_DOCUMENT", {
+                this.warning("SIMPLE_LOOT_LIST.WARNING.INVALID_DOCUMENT", {
                     type: droppedDoc.type
                 });
-                ui.notifications.warn(warn);
                 return false;
             }
             // return the item.
@@ -65,8 +61,7 @@ export class SLL_HELPERS {
         if ( isFolder ) {
             // must be a folder of items.
             if ( data.documentName !== "Item" ) {
-                const warn = game.i18n.localize("SIMPLE_LOOT_LIST.WARNING.INVALID_DOCUMENT");
-                ui.notifications.warn(warn);
+                this.warning("SIMPLE_LOOT_LIST.WARNING.INVALID_DOCUMENT");
                 return false;
             }
             // must have at least one valid item.
@@ -76,8 +71,7 @@ export class SLL_HELPERS {
                 return true;
             });
             if ( !items.length ) {
-                const warn = game.i18n.localize("SIMPLE_LOOT_LIST.WARNING.EMPTY_DOCUMENT");
-                ui.notifications.warn(warn);
+                this.warning("SIMPLE_LOOT_LIST.WARNING.EMPTY_DOCUMENT");
                 return false;
             }
             // return the items.
@@ -99,8 +93,7 @@ export class SLL_HELPERS {
                 return `Compendium.${coll}.${id}`;
             });
             if ( !uuids.length ) {
-                const warn = game.i18n.localize("SIMPLE_LOOT_LIST.WARNING.EMPTY_DOCUMENT");
-                ui.notifications.warn(warn);
+                this.warning("SIMPLE_LOOT_LIST.WARNING.EMPTY_DOCUMENT");
                 return false;
             }
             // get the items, then check if they are valid.
@@ -113,8 +106,7 @@ export class SLL_HELPERS {
                 return true;
             });
             if ( !items.length ) {
-                const warn = game.i18n.localize("SIMPLE_LOOT_LIST.WARNING.EMPTY_DOCUMENT");
-                ui.notifications.warn(warn);
+                this.warning("SIMPLE_LOOT_LIST.WARNING.EMPTY_DOCUMENT");
                 return false;
             }
             // return the items.
@@ -166,7 +158,7 @@ export class SLL_HELPERS {
             const quantity = row.querySelector(".SLL-item-quantity > input").value;
             const { dataset, innerText: name } = row.querySelector("div.SLL-item-name");
             if ( !dataset ) continue;
-            const {uuid} = dataset;
+            const { uuid } = dataset;
             if ( !quantity || !uuid ) continue;
             lootArray.push({ quantity, uuid, name });
         }
@@ -190,7 +182,7 @@ export class SLL_HELPERS {
     /*
         Get all the items on the loot list and add them
         to the target. Return the list of items.
-        ui.notification too.
+        ui notification too.
     */
     static async grantItemsToTarget(array, targetUuid){
         const { actor: target } = fromUuidSync(targetUuid);
@@ -198,9 +190,7 @@ export class SLL_HELPERS {
         for ( const { quantity, uuid } of array ) {
             const item = await fromUuid(uuid);
             if ( !item ) {
-                const warning = "SIMPLE_LOOT_LIST.WARNING.ITEM_NOT_FOUND";
-                const locale = game.i18n.format(warning, { uuid });
-                ui.notifications.warn(locale);
+                this.warning("SIMPLE_LOOT_LIST.WARNING.ITEM_NOT_FOUND", { uuid });
                 continue;
             }
             const data = target.getRollData();
@@ -210,11 +200,16 @@ export class SLL_HELPERS {
             items.push(itemData);
         }
         const created = await target.createEmbeddedDocuments("Item", items);
-        const info = game.i18n.format("SIMPLE_LOOT_LIST.WARNING.CREATED_ITEMS", {
+        this.warning("SIMPLE_LOOT_LIST.WARNING.CREATED_ITEMS", {
             amount: created.length,
             name: target.name
-        });
-        ui.notifications.info(info);
+        }, "info");
         return created;
+    }
+
+    // helper warning method.
+    static warning(string, obj={}, type="warn"){
+        const locale = game.i18n.format(string, obj);
+        ui.notifications[type](locale);
     }
 }
