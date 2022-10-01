@@ -1,95 +1,84 @@
-input.SLL-ondrop-box {
-    height: 100px;
-    border-radius: 20px;
-    text-align: center;
-    backdrop-filter: contrast(0.75);
-    font-style: italic;
+.SLL-ondrop-box {
+  height: 100px;
+  border-radius: 20px;
+  text-align: center;
+  backdrop-filter: contrast(0.75);
+  font-style: italic;
+  padding: calc(50px - 1em);
+  border-style: dotted;
+  border-color: lightgray;
 }
 
-input.SLL-ondrop-box.drag-over {
-    border-color: black !important;
-    border-style: dotted;
-}
-
-input.SLL-ondrop-box:hover {
-    border: none;
-}
-
-input.SLL-ondrop-box::placeholder {
-    color: black;
-}
-
-input.SLL-ondrop-box.drag-over::placeholder {
-    color: inherit;
-    opacity: 10%;
+.SLL-ondrop-box.drag-over {
+  border-color: black;
 }
 
 section.SLL-item-list-section {
-    padding-top: 5px;
+  padding-top: 5px;
 }
 
 header.SLL-item-list-header.flexrow {
-    height: 28px;
-    background: rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--color-border-light-tertiary);
-    font-weight: bold;
-    align-content: center;
+  height: 28px;
+  background: rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--color-border-light-tertiary);
+  font-weight: bold;
+  align-content: center;
 }
 
 div.SLL-header-quantity {
-    text-align: center;
+  text-align: center;
 }
 
 div.SLL-header-name {
-    flex: 4;
-    text-align: left;
+  flex: 4;
+  text-align: left;
 }
 
 ol.SLL-item-list {
-    padding-left: 0;
-    margin: 0.25em 0 0.25em 0;
-    max-height: 500px;
-    overflow-y: scroll;
+  padding-left: 0;
+  margin: 0.25em 0 0.25em 0;
+  max-height: 500px;
+  overflow-y: scroll;
 }
 
 li.SLL-item-row {
-    align-items: center;
-    padding: 0.25em 0 0.25em 0;
-    display: grid;
-    grid-template-columns: 15% 60% 5%;
+  align-items: center;
+  padding: 0.25em 0 0.25em 0;
+  display: grid;
+  grid-template-columns: 15% 60% 5%;
 }
 
 div.SLL-item-quantity {
-    text-align: center;
+  text-align: center;
 }
 
 div.SLL-item-name {
-    font-weight: bold;
-    padding: 0.25em 0 0.25em 0.5em;
+  font-weight: bold;
+  padding: 0.25em 0 0.25em 0.5em;
 }
 
 div.SLL-item-name:hover {
-    filter: drop-shadow(0 0 5px red);
-    cursor: pointer;
+  filter: drop-shadow(0 0 5px red);
+  cursor: pointer;
 }
 
 div.SLL-item-delete {
-    grid-column-end: none;
-    margin-left: auto;
+  grid-column-end: none;
+  margin-left: auto;
 }
 
 a.SLL-item-delete {
-    padding: 0 0.5em 0 0.5em;
+  padding: 0 0.5em 0 0.5em;
 }
 
 .SLL-item-list-button-row {
-    display: grid;
-    grid-template-columns: auto auto;
-    margin-bottom: -4px;
-    justify-content: space-between;
+  display: grid;
+  grid-template-columns: auto auto;
+  margin-bottom: -4px;
+  justify-content: space-between;
 }
 
 .SLL-item-list-button-row button {
-    margin-bottom: 4px;
-    min-width: 263px;
+  margin-bottom: 4px;
+  min-width: 263px;
 }

@@ -1,32 +1,32 @@
 {
-    "SIMPLE_LOOT_LIST": {
-        "WARNING": {
-            "ACTOR_ITEM": "You cannot add an item from an actor.",
-            "MAJOR_ERROR": "Something has gone terribly wrong.",
-            "EMPTY_DOCUMENT": "The document contains no valid items.",
-            "INVALID_DOCUMENT": "The document is not a valid type.",
-            "CREATED_ITEMS": "Created {amount} items on {name}.",
-            "ITEM_NOT_FOUND": "No item with uuid '{uuid}' was found. It has been skipped.",
-            "NO_SUCH_ITEM": "The item, '{name}', could not be found.",
-            "ADDED_ITEMS_TO_LIST": "Added {amount} items to the loot list on {name}."
-        },
-        "LABEL": {
-            "DROP_ITEM": "Drop item, folder, or table here...",
-            "QUANTITY": "Quantity",
-            "ITEM": "Item",
-            "SAVE": "Save List",
-            "GRANT": "Grant to Target",
-            "CLEAR": "Clear",
-            "CANCEL": "Cancel",
-            "LIST_TITLE": "Loot List: {name}"
-        },
-        "SETTINGS": {
-            "HEADER_LABEL": {
-                "NAME": "Show Label",
-                "HINT": "Uncheck to hide the label on actor sheet headers."
-            }
-        },
-        "TITLE": "Simple Loot List: {name}",
-        "HEADER": "Loot List"
-    }
+  "SIMPLE_LOOT_LIST": {
+    "WARNING": {
+      "ACTOR_ITEM": "You cannot add an item from an actor.",
+      "MAJOR_ERROR": "Something has gone terribly wrong.",
+      "EMPTY_DOCUMENT": "The document contains no valid items.",
+      "INVALID_DOCUMENT": "The document is not a valid type.",
+      "CREATED_ITEMS": "Created {amount} items on {name}.",
+      "ITEM_NOT_FOUND": "No item with uuid '{uuid}' was found. It has been skipped.",
+      "NO_SUCH_ITEM": "The item, '{name}', could not be found.",
+      "ADDED_ITEMS_TO_LIST": "Added {amount} items to the loot list on {name}."
+    },
+    "LABEL": {
+      "DROP_ITEM": "Drop item, folder, or table here...",
+      "QUANTITY": "Quantity",
+      "ITEM": "Item",
+      "SAVE": "Save List",
+      "GRANT": "Grant to Target",
+      "CLEAR": "Clear",
+      "CANCEL": "Cancel",
+      "LIST_TITLE": "Loot List: {name}"
+    },
+    "SETTINGS": {
+      "HEADER_LABEL": {
+        "NAME": "Show Label",
+        "HINT": "Uncheck to hide the label on actor sheet headers."
+      }
+    },
+    "TITLE": "Simple Loot List: {name}",
+    "HEADER": "Loot List"
+  }
 }
