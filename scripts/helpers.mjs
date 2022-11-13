@@ -1,23 +1,19 @@
-import { LOOT_LIST, MODULE_NAME } from "./const.mjs";
+import { ITEMS, MODULE } from "./constants.mjs";
 
 export class SLL_HELPERS {
 
-  /* 
-      Returns an array of valid items from a dropped document.
-      
-      If single document, and it is valid, return it in an array.
-      If a folder with at least 1 valid item in it, return the array of valid items.
-      If a rolltable with at least 1 valid item in it, return the array of valid items.
-      If no valid items, return false.
-  */
+  /**
+   * Returns an array of valid items from a dropped document.
+   * If single document, and it is valid, return it in an array.
+   * If a folder with at least 1 valid item in it, return the array of valid items.
+   * If a rolltable with at least 1 valid item in it, return the array of valid items.
+   * If no valid items, return false.
+   */
   static async validDrops(data) {
     const validItemTypes = [
-      "weapon",
-      "equipment",
-      "consumable",
-      "tool",
-      "loot",
-      "backpack"
+      "weapon", "equipment",
+      "consumable", "tool",
+      "loot", "backpack"
     ];
 
     // must be either a folder of items, or an item.
@@ -114,49 +110,34 @@ export class SLL_HELPERS {
     }
   }
 
-  /* 
-      Finds duplicates in the loot list.
-      Returns false if none found.
-      Returns the node with the value if found.
-  */
+  // Finds duplicates in the loot list. Returns the node with the value if found, else false.
   static findDuplicates(html, uuid) {
-    const found = html[0].querySelector(`.SLL-item-name[data-uuid="${uuid}"]`);
+    const found = html[0].querySelector(`.item-name[data-uuid="${uuid}"]`);
     if (!found) return false;
 
-    const row = found.closest(".SLL-item-row");
-    const valueNode = row.querySelector(".SLL-item-quantity > input");
-    return valueNode;
+    const row = found.closest(".item");
+    return row.querySelector(".item-quantity > input");
   }
-  /*
-      Appends +1 to a quantity in the html.
-      Returns the new quantity.
-  */
+
+  // Appends +1 to a quantity in the html. Returns the new quantity.
   static appendQuantity(valueNode) {
     const value = valueNode.value + "+1";
-    const additive = dnd5e.dice.simplifyRollFormula(value);
-    return additive;
+    return dnd5e.dice.simplifyRollFormula(value);
   }
 
-  /*
-      Create a new row from a uuid and name.
-      Returns the row.
-  */
+  // Create a new row from a uuid and name. Returns the row.
   static async createNewRow(uuid, name) {
-    const template = "/modules/simple-loot-list/templates/lootListRow.html";
-    const row = await renderTemplate(template, { value: 1, uuid, name });
-    return row;
+    const template = "modules/simple-loot-list/templates/lootListRow.hbs";
+    return renderTemplate(template, { value: 1, uuid, name });
   }
 
-  /*
-      Create array of items from html.
-      Return the items.
-  */
-  static getRowDataFromHTML(html) {
+  // Create array of items from html. Returns the array.
+  static getItemsFromHTML(html) {
     const lootArray = [];
-    const rows = html.querySelectorAll(".SLL-item-row");
+    const rows = html.querySelectorAll(".item");
     for (const row of rows) {
-      const quantity = row.querySelector(".SLL-item-quantity > input").value;
-      const { dataset, innerText: name } = row.querySelector("div.SLL-item-name");
+      const quantity = row.querySelector(".item-quantity > input").value;
+      const { dataset, innerText: name } = row.querySelector(".item-name");
       if (!dataset) continue;
       const { uuid } = dataset;
       if (!quantity || !uuid) continue;
@@ -165,40 +146,46 @@ export class SLL_HELPERS {
     return lootArray;
   }
 
-  /*
-      Update an actor with a loot list.
-      If no array passed, remove flag.
-  */
+  // Create array of currencies. Returns the array.
+  static getCurrenciesFromHTML(html) {
+    const inputs = html.querySelectorAll(".currency-list input");
+    return [...inputs].map(i => ({ key: i.dataset.key, value: i.value }));
+  }
+
+  // Update an actor with a loot list. If no array passed, remove flag.
   static async updateLootList(array, actor) {
     // if no array passed, unset the flag.
     if (!array || !array.length) {
-      return actor.unsetFlag(MODULE_NAME, LOOT_LIST);
+      return actor.unsetFlag(MODULE, ITEMS);
     }
 
     // if array passed, update the actor flag.
-    return actor.setFlag(MODULE_NAME, LOOT_LIST, array);
+    return actor.setFlag(MODULE, ITEMS, array);
   }
 
-  /*
-      Get all the items on the loot list and add them
-      to the target. Return the list of items.
-      ui notification too.
-  */
-  static async grantItemsToTarget(array, targetUuid) {
-    const { actor: target } = fromUuidSync(targetUuid);
+  // Get all the items on the loot list and add them to the target.
+  static async grantLootToTarget(loot, currencies, targetUuid) {
+    const { actor: target } = await fromUuid(targetUuid);
     const items = [];
-    for (const { quantity, uuid } of array) {
+    const update = {};
+    const data = target.getRollData();
+
+    for (const { quantity, uuid } of loot) {
       const item = await fromUuid(uuid);
       if (!item) {
         this.warning("SIMPLE_LOOT_LIST.WARNING.ITEM_NOT_FOUND", { uuid });
         continue;
       }
-      const data = target.getRollData();
       const { total } = await new Roll(quantity, data).evaluate({ async: true });
       const itemData = item.toObject();
       itemData.system.quantity = total;
       items.push(itemData);
     }
+    for (const { key, value } of currencies) {
+      const { total } = await new Roll(value, data).evaluate({ async: true });
+      update[`system.currency.${key}`] = target.system.currency[key] + total;
+    }
+    await target.update(update);
     const created = await target.createEmbeddedDocuments("Item", items);
     this.warning("SIMPLE_LOOT_LIST.WARNING.CREATED_ITEMS", {
       amount: created.length,

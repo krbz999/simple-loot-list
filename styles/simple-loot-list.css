@@ -1,0 +1,89 @@
+.simple-loot-list .ondrop-box {
+  height: 100px;
+  border-radius: 20px;
+  text-align: center;
+  backdrop-filter: contrast(0.75);
+  font-style: italic;
+  padding: calc(50px - 1em);
+  border-style: dotted;
+  border-color: lightgray;
+}
+
+.simple-loot-list .ondrop-box.drag-over {
+  border-color: black;
+}
+
+.simple-loot-list .currency-section {
+  padding-top: 5px;
+}
+
+.simple-loot-list .item-header,
+.simple-loot-list .currency-header {
+  height: 28px;
+  background: rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--color-border-light-tertiary);
+  font-weight: bold;
+  align-content: center;
+  display: grid;
+  grid-template-columns: 1fr 5fr;
+}
+
+.simple-loot-list .currency-header {
+  padding: 5px;
+}
+
+.simple-loot-list .header-quantity {
+  text-align: center;
+}
+
+.simple-loot-list .item-list {
+  padding-left: 0;
+  margin: 0.25em 0;
+  max-height: 500px;
+  overflow-y: scroll;
+}
+
+.simple-loot-list .item {
+  align-items: center;
+  padding: 0.25em 0;
+  display: grid;
+  grid-template-columns: 1fr 5fr 0fr;
+}
+
+.simple-loot-list .currency-list {
+  padding-left: 0;
+  display: flex;
+}
+
+.simple-loot-list .currency {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 5px;
+}
+
+.simple-loot-list .item-quantity {
+  text-align: center;
+}
+
+.simple-loot-list .item-name {
+  font-weight: bold;
+  padding: 0.25em 0 0.25em 0.5em;
+}
+
+.simple-loot-list .item-name:hover {
+  filter: drop-shadow(0 0 5px red);
+  cursor: pointer;
+}
+
+.simple-loot-list .item-list-button-row {
+  display: grid;
+  grid-template-columns: auto auto;
+  margin-bottom: -4px;
+  justify-content: space-between;
+}
+
+.simple-loot-list .item-list-button-row button {
+  margin-bottom: 4px;
+  min-width: 263px;
+}

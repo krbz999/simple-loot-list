@@ -1,4 +1,4 @@
-import { MODULE_NAME, LOOT_LIST } from "./const.mjs";
+import { MODULE, ITEMS, CURRENCIES } from "./constants.mjs";
 import { SLL_HELPERS } from "./helpers.mjs";
 
 export class LootList extends FormApplication {
@@ -9,33 +9,44 @@ export class LootList extends FormApplication {
   }
 
   get id() {
-    return `simple-loot-list-${this.actor.id}`;
+    return `${MODULE}-${this.actor.id}`;
   }
 
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
-      closeOnSubmit: false,
-      classes: ["sheet"],
+      classes: ["sheet", MODULE],
       width: 550,
-      template: "/modules/simple-loot-list/templates/lootListTemplate.html",
+      template: "modules/simple-loot-list/templates/lootListTemplate.hbs",
       height: "auto",
-      dragDrop: [{ dragSelector: null, dropSelector: ".SLL-item-list-add" }]
+      dragDrop: [{ dragSelector: null, dropSelector: ".item-list-add" }]
     });
   }
 
   get lootItems() {
-    return this.actor.getFlag(MODULE_NAME, LOOT_LIST) ?? [];
+    return this.actor.getFlag(MODULE, ITEMS) ?? [];
+  }
+
+  get currencies() {
+    const flag = this.actor.getFlag(MODULE, CURRENCIES);
+    if (flag) {
+      return Object.entries(flag).map(([key, value]) => {
+        return { key, value, label: CONFIG.DND5E.currencies[key].label };
+      });
+    } else return Object.entries(CONFIG.DND5E.currencies).map(([key, { label }]) => {
+      return { key, label, value: 0 };
+    });
   }
 
   async getData(options) {
-    let data = await super.getData(options);
+    const data = await super.getData(options);
     data.lootItems = this.lootItems;
+    data.currencies = this.currencies;
     return data;
   }
 
   async _onDrop(event) {
     event.stopPropagation();
-    event.target.closest(".SLL-ondrop-box").classList.remove("drag-over");
+    event.target.closest(".ondrop-box").classList.remove("drag-over");
 
     let data;
     try {
@@ -48,7 +59,7 @@ export class LootList extends FormApplication {
     if (!items) return;
 
     // append:
-    const list = this.element[0].querySelector("ol.SLL-item-list");
+    const list = this.element[0].querySelector(".item-list");
     for (const { uuid, name } of items) {
       // find any current row with the same item.
       const valueNode = SLL_HELPERS.findDuplicates(this.element, uuid);
@@ -75,55 +86,29 @@ export class LootList extends FormApplication {
   }
 
   async _onDragOver(event) {
-    const dropPoint = event.target.closest(".SLL-ondrop-box");
+    const dropPoint = event.target.closest(".ondrop-box");
     if (!dropPoint) return;
     dropPoint.classList.add("drag-over");
   }
 
   async _updateObject(event, formData) {
-    event.stopPropagation();
-    const html = event.target;
-    const button = event.submitter;
-    if (!button) return;
-
-    // delete the list.
-    if (button.name === "clear") {
-      const rows = html.querySelectorAll("li.SLL-item-row");
-      for (const li of rows) li.remove();
-      this.setPosition();
-      return;
-    }
-    // just close, don't save.
-    if (button.name === "cancel") return this.close();
-    // if grant, must have target.
-    if (button.name === "grant") {
-      const target = game.user.targets.first().document.uuid;
-      const lootArray = SLL_HELPERS.getRowDataFromHTML(html);
-      return SLL_HELPERS.grantItemsToTarget(lootArray, target);
-    }
-    // if not one of the above, should be 'submit'.
-    if (button.name !== "submit") return;
-
-    // for each entry, add to object.
-    const lootArray = SLL_HELPERS.getRowDataFromHTML(html);
-    await SLL_HELPERS.updateLootList(lootArray, this.actor);
-    this.close();
+    formData[`flags.${MODULE}.${ITEMS}`] = SLL_HELPERS.getItemsFromHTML(this.element[0]);
+    return this.actor.update(formData);
   }
 
   activateListeners(html) {
     super.activateListeners(html);
-    const app = this;
+
     html[0].addEventListener("click", async (event) => {
-      const deleteButton = event.target.closest("div.SLL-item-delete");
-      const itemName = event.target.closest("div.SLL-item-name");
+      const deleteButton = event.target.closest(".item-delete");
+      const itemName = event.target.closest(".item-name");
       if (deleteButton) {
-        const row = deleteButton.closest("li.SLL-item-row");
+        const row = deleteButton.closest(".item");
         if (row) {
           row.remove();
-          app.setPosition();
+          this.setPosition();
         }
-      }
-      if (itemName) {
+      } else if (itemName) {
         const { uuid } = itemName.dataset;
         const item = await fromUuid(uuid);
         if (!item) {
@@ -137,10 +122,30 @@ export class LootList extends FormApplication {
     });
 
     html[0].addEventListener("dragleave", (event) => {
-      const dropPoint = event.target.closest(".SLL-ondrop-box");
+      const dropPoint = event.target.closest(".ondrop-box");
       if (dropPoint) {
         dropPoint.classList.remove("drag-over");
       }
     });
+
+    html[0].addEventListener("click", (event) => {
+      const button = event.target.closest("button[type='button']");
+      if (!button) return;
+      // delete the list.
+      if (button.name === "clear") {
+        this.element[0].querySelectorAll(".item").forEach(li => li.remove());
+        this.setPosition();
+        return;
+      }
+      // just close, don't save.
+      if (button.name === "cancel") return this.close();
+      // if grant, must have target.
+      if (button.name === "grant") {
+        const target = game.user.targets.first().document.uuid;
+        const lootArray = SLL_HELPERS.getItemsFromHTML(this.element[0]);
+        const currencies = SLL_HELPERS.getCurrenciesFromHTML(this.element[0]);
+        return SLL_HELPERS.grantLootToTarget(lootArray, currencies, target);
+      }
+    })
   }
 }

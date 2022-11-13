@@ -18,7 +18,8 @@
       "GRANT": "Grant to Target",
       "CLEAR": "Clear",
       "CANCEL": "Cancel",
-      "LIST_TITLE": "Loot List: {name}"
+      "LIST_TITLE": "Loot List: {name}",
+      "CURRENCY": "Currencies"
     },
     "SETTINGS": {
       "HEADER_LABEL": {
