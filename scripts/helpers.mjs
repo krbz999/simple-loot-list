@@ -114,9 +114,7 @@ export class SLL_HELPERS {
   static findDuplicates(html, uuid) {
     const found = html[0].querySelector(`.item-name[data-uuid="${uuid}"]`);
     if (!found) return false;
-
-    const row = found.closest(".item");
-    return row.querySelector(".item-quantity > input");
+    return found.closest(".item").querySelector(".item-quantity > input");
   }
 
   // Appends +1 to a quantity in the html. Returns the new quantity.
@@ -133,17 +131,16 @@ export class SLL_HELPERS {
 
   // Create array of items from html. Returns the array.
   static getItemsFromHTML(html) {
-    const lootArray = [];
-    const rows = html.querySelectorAll(".item");
-    for (const row of rows) {
+    return [...html.querySelectorAll(".item")].reduce((acc, row) => {
       const quantity = row.querySelector(".item-quantity > input").value;
       const { dataset, innerText: name } = row.querySelector(".item-name");
-      if (!dataset) continue;
-      const { uuid } = dataset;
-      if (!quantity || !uuid) continue;
-      lootArray.push({ quantity, uuid, name });
-    }
-    return lootArray;
+      if (!dataset) return acc;
+      const uuid = dataset.uuid;
+      if (!quantity || !uuid) return acc;
+      acc.push({ quantity, uuid, name });
+      return acc;
+    }, []);
+
   }
 
   // Create array of currencies. Returns the array.
