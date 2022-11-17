@@ -179,8 +179,10 @@ export class SLL_HELPERS {
       items.push(itemData);
     }
     for (const { key, value } of currencies) {
-      const { total } = await new Roll(value, data).evaluate({ async: true });
-      update[`system.currency.${key}`] = target.system.currency[key] + total;
+      try {
+        const { total } = await new Roll(value, data).evaluate({ async: true });
+        update[`system.currency.${key}`] = target.system.currency[key] + total;
+      } catch {}
     }
     await target.update(update);
     const created = await target.createEmbeddedDocuments("Item", items);
