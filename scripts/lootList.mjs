@@ -77,7 +77,7 @@ export class LootList extends FormApplication {
 
     }
     if (items.length > 1) {
-      SLL_HELPERS.warning("SIMPLE_LOOT_LIST.WARNING.ADDED_ITEMS_TO_LIST", {
+      SLL_HELPERS.warning("SimpleLootList.WarningAddedItems", {
         amount: items.length,
         name: this.actor.name
       }, "info");
@@ -112,7 +112,7 @@ export class LootList extends FormApplication {
         const { uuid } = itemName.dataset;
         const item = await fromUuid(uuid);
         if (!item) {
-          SLL_HELPERS.warning("SIMPLE_LOOT_LIST.WARNING.NO_SUCH_ITEM", {
+          SLL_HELPERS.warning("SimpleLootList.WarningItemNotFoundName", {
             name: itemName.innerText
           });
           return;

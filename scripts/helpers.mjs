@@ -22,13 +22,13 @@ export class SLL_HELPERS {
     const isTable = data.type === "RollTable";
 
     if (!isFolder && !isItem && !isTable) {
-      this.warning("SIMPLE_LOOT_LIST.WARNING.INVALID_DOCUMENT");
+      this.warning("SimpleLootList.WarningInvalidDocument");
       return false;
     }
 
     // must have a uuid (it always has).
     if (!data.uuid) {
-      this.warning("SIMPLE_LOOT_LIST.WARNING.MAJOR_ERROR")
+      this.warning("SimpleLootList.WarningMajorError")
       return false;
     }
 
@@ -39,12 +39,12 @@ export class SLL_HELPERS {
     if (isItem) {
       // cannot be an owned item (uuid starts with 'Scene' or 'Actor').
       if (data.uuid.startsWith("Scene") || data.uuid.startsWith("Actor")) {
-        this.warning("SIMPLE_LOOT_LIST.WARNING.ACTOR_ITEM");
+        this.warning("SimpleLootList.WarningActorItem");
         return false;
       }
       // must be valid item-type.
       if (!validItemTypes.includes(droppedDoc.type)) {
-        this.warning("SIMPLE_LOOT_LIST.WARNING.INVALID_DOCUMENT", {
+        this.warning("SimpleLootList.WarningInvalidDocument", {
           type: droppedDoc.type
         });
         return false;
@@ -57,7 +57,7 @@ export class SLL_HELPERS {
     if (isFolder) {
       // must be a folder of items.
       if (data.documentName !== "Item") {
-        this.warning("SIMPLE_LOOT_LIST.WARNING.INVALID_DOCUMENT");
+        this.warning("SimpleLootList.WarningInvalidDocument");
         return false;
       }
       // must have at least one valid item.
@@ -67,7 +67,7 @@ export class SLL_HELPERS {
         return true;
       });
       if (!items.length) {
-        this.warning("SIMPLE_LOOT_LIST.WARNING.EMPTY_DOCUMENT");
+        this.warning("SimpleLootList.WarningEmptyDocument");
         return false;
       }
       // return the items.
@@ -89,7 +89,7 @@ export class SLL_HELPERS {
         return `Compendium.${coll}.${id}`;
       });
       if (!uuids.length) {
-        this.warning("SIMPLE_LOOT_LIST.WARNING.EMPTY_DOCUMENT");
+        this.warning("SimpleLootList.WarningEmptyDocument");
         return false;
       }
       // get the items, then check if they are valid.
@@ -102,7 +102,7 @@ export class SLL_HELPERS {
         return true;
       });
       if (!items.length) {
-        this.warning("SIMPLE_LOOT_LIST.WARNING.EMPTY_DOCUMENT");
+        this.warning("SimpleLootList.WarningEmptyDocument");
         return false;
       }
       // return the items.
@@ -170,7 +170,7 @@ export class SLL_HELPERS {
     for (const { quantity, uuid } of loot) {
       const item = await fromUuid(uuid);
       if (!item) {
-        this.warning("SIMPLE_LOOT_LIST.WARNING.ITEM_NOT_FOUND", { uuid });
+        this.warning("SimpleLootList.WarningItemNotFound", { uuid });
         continue;
       }
       const { total } = await new Roll(quantity, data).evaluate({ async: true });
@@ -186,7 +186,7 @@ export class SLL_HELPERS {
     }
     await target.update(update);
     const created = await target.createEmbeddedDocuments("Item", items);
-    this.warning("SIMPLE_LOOT_LIST.WARNING.CREATED_ITEMS", {
+    this.warning("SimpleLootList.WarningCreatedItems", {
       amount: created.length,
       name: target.name
     }, "info");

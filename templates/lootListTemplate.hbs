@@ -1,12 +1,12 @@
 <form>
 
   <div class="item-list-add">
-    <div class="ondrop-box">{{localize "SIMPLE_LOOT_LIST.LABEL.DROP_ITEM"}}</div>
+    <div class="ondrop-box">{{localize "SimpleLootList.DropItem"}}</div>
   </div>
 
   <section class="currency-section">
     <header class="currency-header">
-      {{localize "SIMPLE_LOOT_LIST.LABEL.CURRENCY"}}
+      {{localize "SimpleLootList.Currencies"}}
     </header>
     <ol class="currency-list">
       {{#each currencies as |currency|}}
@@ -21,8 +21,8 @@
   <section class="item-section">
 
     <header class="item-header">
-      <div class="header-quantity">{{localize "SIMPLE_LOOT_LIST.LABEL.QUANTITY"}}</div>
-      <div class="header-name">{{localize "SIMPLE_LOOT_LIST.LABEL.ITEM"}}</div>
+      <div class="header-quantity">{{localize "SimpleLootList.Quantity"}}</div>
+      <div class="header-name">{{localize "SimpleLootList.Item"}}</div>
     </header>
 
     <ol class="item-list">
@@ -45,19 +45,15 @@
 
   <div class="item-list-button-row flexrow">
     <button name="submit" type="submit">
-      <i class="fa-solid fa-save"></i> {{localize "SIMPLE_LOOT_LIST.LABEL.SAVE"}}
+      <i class="fa-solid fa-save"></i> {{localize "SimpleLootList.SaveList"}}
     </button>
 
     <button name="grant" type="button">
-      <i class="fa-solid fa-bullseye"></i> {{localize "SIMPLE_LOOT_LIST.LABEL.GRANT"}}
+      <i class="fa-solid fa-bullseye"></i> {{localize "SimpleLootList.GrantToTarget"}}
     </button>
 
     <button name="clear" type="button">
-      <i class="fa-solid fa-eraser"></i> {{localize "SIMPLE_LOOT_LIST.LABEL.CLEAR"}}
-    </button>
-
-    <button name="cancel" type="button">
-      <i class="fa-solid fa-times"></i> {{localize "SIMPLE_LOOT_LIST.LABEL.CANCEL"}}
+      <i class="fa-solid fa-eraser"></i> {{localize "SimpleLootList.Clear"}}
     </button>
   </div>
 

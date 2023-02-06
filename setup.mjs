@@ -5,8 +5,8 @@ Hooks.once("init", () => {
   console.log("ZHELL | Initializing Simple Loot List");
 
   game.settings.register(MODULE, "headerLabel", {
-    name: game.i18n.localize("SIMPLE_LOOT_LIST.SETTINGS.HEADER_LABEL.NAME"),
-    hint: game.i18n.localize("SIMPLE_LOOT_LIST.SETTINGS.HEADER_LABEL.HINT"),
+    name: "SimpleLootList.SettingHeaderLabelName",
+    hint: "SimpleLootList.SettingHeaderLabelHint",
     scope: "world",
     config: true,
     type: Boolean,
@@ -21,14 +21,14 @@ Hooks.once("init", () => {
       icon: "fa-solid fa-coins",
       onclick: async () => {
         new LootList(app.object).render(true, {
-          title: game.i18n.format("SIMPLE_LOOT_LIST.TITLE", {
+          title: game.i18n.format("SimpleLootList.Title", {
             name: app.object.name
           })
         });
       }
     }
     if (label) {
-      listButton.label = game.i18n.localize("SIMPLE_LOOT_LIST.HEADER");
+      listButton.label = game.i18n.localize("SimpleLootList.Header");
     }
     array.unshift(listButton);
   });

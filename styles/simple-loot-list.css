@@ -76,14 +76,11 @@
   cursor: pointer;
 }
 
-.simple-loot-list .item-list-button-row {
-  display: grid;
-  grid-template-columns: auto auto;
-  margin-bottom: -4px;
-  justify-content: space-between;
+.simple-loot-list a.item-delete {
+  min-width: 1.5em;
 }
 
-.simple-loot-list .item-list-button-row button {
-  margin-bottom: 4px;
-  min-width: 263px;
+.simple-loot-list .item-list-button-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
 }
