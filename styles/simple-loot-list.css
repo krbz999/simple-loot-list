@@ -1,5 +1,6 @@
-.simple-loot-list.app {
+.simple-loot-list.window-app {
   height: auto !important;
+  width: 550px !important;
 }
 
 .simple-loot-list [data-action="drop"] {

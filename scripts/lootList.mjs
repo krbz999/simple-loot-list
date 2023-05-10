@@ -14,33 +14,10 @@ export class LootList extends FormApplication {
   /** @override */
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
-      classes: ["sheet", MODULE],
-      width: 550,
+      classes: [MODULE],
       template: "modules/simple-loot-list/templates/lootListTemplate.hbs",
-      height: "auto",
-      dragDrop: [{dragSelector: null, dropSelector: ".item-list-add"}]
+      dragDrop: [{dropSelector: "[data-action='drop']"}]
     });
-  }
-
-  /**
-   * Get the items saved on the actor in the module scope.
-   * @returns {object[]}      The array of objects with quantity, name, and uuid.
-   */
-  get lootItems() {
-    return this.actor.flags[MODULE]?.[ITEMS] ?? [];
-  }
-
-  /**
-   * Get the currencies saved on the actor in the module scope.
-   * @returns {object[]}      An array of objects with key, value, and label.
-   */
-  get currencies() {
-    const flag = this.actor.flags[MODULE]?.[CURRENCIES] ?? {};
-    const currs = [];
-    for (const [key, data] of Object.entries(CONFIG.DND5E.currencies)) {
-      currs.push({key: key, value: flag[key] ?? 0, label: data.label});
-    }
-    return currs;
   }
 
   /**
@@ -54,8 +31,19 @@ export class LootList extends FormApplication {
   /** @override */
   async getData(options) {
     const data = await super.getData(options);
-    data.lootItems = this.lootItems;
-    data.currencies = this.currencies;
+    const sll = this.actor.flags[MODULE] ?? {};
+
+    // Get items.
+    data.lootItems = sll[ITEMS] ?? [];
+    data.lootItems.sort((a, b) => a.name.localeCompare(b.name));
+
+    // Get currencies.
+    const currs = sll[CURRENCIES] ?? {};
+    data.currencies = [];
+    for (const [key, vals] of Object.entries(CONFIG.DND5E.currencies)) {
+      data.currencies.push({key: key, value: currs[key] ?? 0, label: vals.label});
+    }
+
     return data;
   }
 
@@ -103,14 +91,12 @@ export class LootList extends FormApplication {
 
   /** @override */
   async _onDragOver(event) {
-    const dropPoint = event.target.closest("[data-action='drop']");
-    if (!dropPoint) return;
-    dropPoint.classList.add("drag-over");
+    event.target.closest("[data-action='drop']")?.classList.add("drag-over");
   }
 
   /** @override */
   async _updateObject(event, formData) {
-    formData[`flags.${MODULE}.${ITEMS}`] = this._getItemsFromHTML();
+    formData[`flags.${MODULE}.${ITEMS}`] = this._gatherItems();
     return this.actor.update(formData);
   }
 
@@ -130,9 +116,13 @@ export class LootList extends FormApplication {
    * @returns {Item5e[]}              The created items.
    */
   async _onClickGrant(event) {
-    const lootArray = this._getItemsFromHTML();
-    const currencies = this._getCurrenciesFromHTML();
-    const target = game.user.targets.first().actor;
+    const lootArray = this._gatherItems();
+    const currencies = this._gatherCurrencies();
+    const target = game.user.targets.first()?.actor;
+    if (!target) {
+      this._warning("SimpleLootList.WarningNoTarget");
+      return;
+    }
 
     const items = [];
     const update = {};
@@ -144,7 +134,7 @@ export class LootList extends FormApplication {
         this._warning("SimpleLootList.WarningItemNotFound", {uuid});
         continue;
       }
-      const {total} = await new Roll(quantity, data).evaluate({async: true});
+      const {total} = await new Roll(quantity, data).evaluate();
       const itemData = game.items.fromCompendium(item);
       itemData.system.quantity = Math.max(1, total);
       if (itemData.system.attunement > 1) itemData.system.attunement = 1;
@@ -155,7 +145,7 @@ export class LootList extends FormApplication {
 
     for (const {key, value} of currencies) {
       try {
-        const {total} = await new Roll(value, data).evaluate({async: true});
+        const {total} = await new Roll(value, data).evaluate();
         update[`system.currency.${key}`] = target.system.currency[key] + Math.max(0, total);
       } catch (err) {
         console.warn(err);
@@ -189,12 +179,10 @@ export class LootList extends FormApplication {
    * @param {PointerEvent} event      The initiating click event.
    */
   async _onClickItemName(event) {
-    const item = await fromUuid(event.currentTarget.dataset.uuid);
-    if (!item) {
-      this._warning("SimpleLootList.WarningItemNotFoundName", {name: event.currentTarget.innerText});
-    } else {
-      item.sheet.render(true);
-    }
+    const target = event.currentTarget;
+    const item = await fromUuid(target.dataset.uuid);
+    if (!item) this._warning("SimpleLootList.WarningItemNotFoundName", {name: target.innerText});
+    else item.sheet.render(true);
   }
 
   /**
@@ -209,7 +197,7 @@ export class LootList extends FormApplication {
    * Read all items on the sheet.
    * @returns {object[]}      An array of objects with quantity, uuid, and name.
    */
-  _getItemsFromHTML() {
+  _gatherItems() {
     const data = [];
     this.element[0].querySelectorAll(".item").forEach(n => {
       const quantity = n.querySelector(".item-quantity > input").value;
@@ -224,7 +212,7 @@ export class LootList extends FormApplication {
    * Read all currencies on the sheet.
    * @returns {object[]}      An array of objects with key and value.
    */
-  _getCurrenciesFromHTML() {
+  _gatherCurrencies() {
     const data = [];
     this.element[0].querySelectorAll(".currency-list input").forEach(n => {
       data.push({key: n.dataset.key, value: n.value});
@@ -247,6 +235,7 @@ export class LootList extends FormApplication {
    * If a single valid item, return it in an array.
    * If a folder with at least 1 valid item in it, return that array.
    * If a rolltable with at least 1 valid item in it, return that array.
+   * If a compendium with at least 1 valid item in it, return that array.
    * If no valid items, returns false.
    * @param {object} data           The dropped data object.
    * @returns {Item5e[]|boolean}     The array of valid items, or false if none found.
@@ -374,7 +363,6 @@ export class LootList extends FormApplication {
     }
     const index = await pack.getIndex({fields: ["system.quantity"]});
     const items = index.reduce((acc, item) => {
-      console.log(item);
       if (!this.validItemTypes.includes(item.type)) return acc;
       acc.push({
         quantity: item.system.quantity,
