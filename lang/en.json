@@ -16,7 +16,7 @@
   "SimpleLootList.WarningEmptyDocument": "The document contains no valid items.",
   "SimpleLootList.WarningInvalidDocument": "The document is not a valid type.",
   "SimpleLootList.WarningItemNotFound": "No item with uuid '{uuid}' was found. It has been skipped.",
-  "SimpleLootList.WarningItemNotFoundName": "The item, '{name}', could not be found.",
+  "SimpleLootList.WarningItemNotFoundName": "The item '{name}' could not be found.",
   "SimpleLootList.WarningMajorError": "Something has gone terribly wrong.",
   "SimpleLootList.WarningNoTarget": "You must target a token on the canvas to grant its actor the loot."
 }

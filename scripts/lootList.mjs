@@ -367,7 +367,7 @@ export class LootList extends FormApplication {
       acc.push({
         quantity: item.system.quantity,
         name: item.name,
-        uuid: `Compendium.${data.id}.Item.${item._id}`
+        uuid: pack.getUuid(item._id)
       });
       return acc;
     }, []);
