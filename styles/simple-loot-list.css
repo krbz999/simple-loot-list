@@ -1,4 +1,9 @@
-.simple-loot-list .ondrop-box {
+.simple-loot-list.window-app {
+  height: auto !important;
+  width: 550px !important;
+}
+
+.simple-loot-list [data-action="drop"] {
   height: 100px;
   border-radius: 20px;
   text-align: center;
@@ -9,7 +14,7 @@
   border-color: lightgray;
 }
 
-.simple-loot-list .ondrop-box.drag-over {
+.simple-loot-list [data-action="drop"].drag-over {
   border-color: black;
 }
 
@@ -66,21 +71,17 @@
   text-align: center;
 }
 
-.simple-loot-list .item-name {
+.simple-loot-list [data-action="render"] {
   font-weight: bold;
   padding: 0.25em 0 0.25em 0.5em;
 }
 
-.simple-loot-list .item-name:hover {
-  filter: drop-shadow(0 0 5px red);
-  cursor: pointer;
-}
-
-.simple-loot-list a.item-delete {
+.simple-loot-list a[data-action="delete"] {
   min-width: 1.5em;
 }
 
 .simple-loot-list .item-list-button-row {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.25em;
 }

@@ -1,5 +1,5 @@
-import { MODULE } from "./scripts/constants.mjs";
-import { LootList } from "./scripts/lootList.mjs";
+import {MODULE} from "./scripts/constants.mjs";
+import {LootList} from "./scripts/lootList.mjs";
 
 Hooks.once("init", () => {
   console.log("ZHELL | Initializing Simple Loot List");

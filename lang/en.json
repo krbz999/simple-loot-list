@@ -1,7 +1,7 @@
 {
   "SimpleLootList.Clear": "Clear",
   "SimpleLootList.Currencies": "Currencies",
-  "SimpleLootList.DropItem": "Drop item, folder, or table here...",
+  "SimpleLootList.DropItem": "Drop item, folder, table, or compendium here...",
   "SimpleLootList.GrantToTarget": "Grant to Target",
   "SimpleLootList.Header": "Loot List",
   "SimpleLootList.Item": "Item",
@@ -16,6 +16,7 @@
   "SimpleLootList.WarningEmptyDocument": "The document contains no valid items.",
   "SimpleLootList.WarningInvalidDocument": "The document is not a valid type.",
   "SimpleLootList.WarningItemNotFound": "No item with uuid '{uuid}' was found. It has been skipped.",
-  "SimpleLootList.WarningItemNotFoundName": "The item, '{name}', could not be found.",
-  "SimpleLootList.WarningMajorError": "Something has gone terribly wrong."
+  "SimpleLootList.WarningItemNotFoundName": "The item '{name}' could not be found.",
+  "SimpleLootList.WarningMajorError": "Something has gone terribly wrong.",
+  "SimpleLootList.WarningNoTarget": "You must target a token on the canvas to grant its actor the loot."
 }

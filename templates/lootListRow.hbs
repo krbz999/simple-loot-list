@@ -2,8 +2,8 @@
   <div class="item-quantity">
     <input type="text" value="{{value}}">
   </div>
-  <div class="item-name" data-uuid="{{uuid}}">{{name}}</div>
-  <a class="item-delete">
+  <a data-action="render" data-uuid="{{uuid}}">{{name}}</a>
+  <a data-action="delete">
     <i class="fa-solid fa-trash"></i>
   </a>
 </li>

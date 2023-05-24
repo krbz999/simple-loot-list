@@ -1,18 +1,16 @@
 <form>
 
-  <div class="item-list-add">
-    <div class="ondrop-box">{{localize "SimpleLootList.DropItem"}}</div>
-  </div>
+  <div data-action="drop">{{localize "SimpleLootList.DropItem"}}</div>
 
   <section class="currency-section">
     <header class="currency-header">
       {{localize "SimpleLootList.Currencies"}}
     </header>
     <ol class="currency-list">
-      {{#each currencies as |currency|}}
+      {{#each currencies}}
       <li class="currency">
-        <div class="currency-label">{{currency.label}}</div>
-        <input type="text" data-key="{{currency.key}}" name="flags.simple-loot-list.currencies.{{currency.key}}" value="{{currency.value}}">
+        <div class="currency-label">{{label}}</div>
+        <input type="text" data-key="{{key}}" name="flags.simple-loot-list.currencies.{{key}}" value="{{value}}">
       </li>
       {{/each}}
     </ol>
@@ -26,17 +24,11 @@
     </header>
 
     <ol class="item-list">
-      {{#each lootItems as |item|}}
+      {{#each lootItems}}
       <li class="item">
-        <div class="item-quantity">
-          <input type="text" value="{{item.quantity}}">
-        </div>
-        <div class="item-name" data-pack="{{item.pack}}" data-id="{{item.id}}" data-uuid="{{item.uuid}}">
-          {{item.name}}
-        </div>
-        <a class="item-delete">
-          <i class="fa-solid fa-trash"></i>
-        </a>
+        <div class="item-quantity"><input type="text" value="{{quantity}}"></div>
+        <a data-action="render" data-uuid="{{uuid}}">{{name}}</a>
+        <a data-action="delete"><i class="fa-solid fa-trash"></i></a>
       </li>
       {{/each}}
     </ol>
@@ -44,15 +36,15 @@
   </section>
 
   <div class="item-list-button-row flexrow">
-    <button name="submit" type="submit">
+    <button data-action="submit" type="submit">
       <i class="fa-solid fa-save"></i> {{localize "SimpleLootList.SaveList"}}
     </button>
 
-    <button name="grant" type="button">
+    <button data-action="grant" type="button">
       <i class="fa-solid fa-bullseye"></i> {{localize "SimpleLootList.GrantToTarget"}}
     </button>
 
-    <button name="clear" type="button">
+    <button data-action="clear" type="button">
       <i class="fa-solid fa-eraser"></i> {{localize "SimpleLootList.Clear"}}
     </button>
   </div>
