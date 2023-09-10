@@ -1,22 +1,57 @@
-import {MODULE, ITEMS, CURRENCIES} from "./constants.mjs";
+const MODULE = "simple-loot-list";
 
-export class LootList extends FormApplication {
+class LootList extends FormApplication {
+  static init() {
+    game.settings.register(MODULE, "headerLabel", {
+      name: "SimpleLootList.SettingHeaderLabel",
+      hint: "SimpleLootList.SettingHeaderLabelHint",
+      scope: "world",
+      config: true,
+      type: Boolean,
+      default: false
+    });
+
+    Hooks.on("getActorSheetHeaderButtons", (app, array) => {
+      if (!game.user.isGM) return;
+      const label = game.settings.get(MODULE, "headerLabel");
+      const listButton = {
+        class: MODULE,
+        icon: "fa-solid fa-coins",
+        onclick: async () => {
+          new LootList(app.document).render(true, {
+            title: game.i18n.format("SimpleLootList.Title", {
+              name: app.document.name
+            })
+          });
+        }
+      }
+      if (label) {
+        listButton.label = game.i18n.localize("SimpleLootList.Header");
+      }
+      array.unshift(listButton);
+    });
+  }
+
   constructor(actor) {
     super(actor);
     this.actor = actor;
+    this.clone = actor.clone({}, {keepId: true});
   }
 
   /** @override */
   get id() {
-    return `${MODULE}-${this.actor.id}`;
+    return `${MODULE}-${this.actor.uuid.replaceAll(".", "-")}`;
   }
 
   /** @override */
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
       classes: [MODULE],
-      template: "modules/simple-loot-list/templates/lootListTemplate.hbs",
-      dragDrop: [{dropSelector: "[data-action='drop']"}]
+      template: "modules/simple-loot-list/templates/loot-list.hbs",
+      dragDrop: [{dropSelector: "[data-action='drop']"}],
+      scrollY: [".item-list"],
+      width: 550,
+      height: "auto"
     });
   }
 
@@ -30,21 +65,30 @@ export class LootList extends FormApplication {
 
   /** @override */
   async getData(options) {
-    const data = await super.getData(options);
-    const sll = this.actor.flags[MODULE] ?? {};
+    const currs = this._gatherCurrencies();
+    return {
+      lootItems: this._gatherItems().reduce((acc, data) => {
+        const item = fromUuidSync(data.uuid ?? "");
+        if (item) acc.push({...data, name: item.name});
+        return acc;
+      }, []).sort((a, b) => a.name.localeCompare(b.name)),
+      currencies: Object.entries(CONFIG.DND5E.currencies).map(([key, vals]) => {
+        return {key, value: currs[key] ?? 0, label: vals.label};
+      })
+    };
+  }
 
-    // Get items.
-    data.lootItems = sll[ITEMS] ?? [];
-    data.lootItems.sort((a, b) => a.name.localeCompare(b.name));
-
-    // Get currencies.
-    const currs = sll[CURRENCIES] ?? {};
-    data.currencies = [];
-    for (const [key, vals] of Object.entries(CONFIG.DND5E.currencies)) {
-      data.currencies.push({key: key, value: currs[key] ?? 0, label: vals.label});
+  /** @override */
+  async _onChangeInput(event) {
+    const key = event.currentTarget.dataset.key;
+    if (key in CONFIG.DND5E.currencies) {
+      const data = this._getSubmitData();
+      this.clone.updateSource(data);
+    } else {
+      const uuid = event.currentTarget.closest("[data-uuid]").dataset.uuid;
+      this._updateQuantity(uuid, event.currentTarget.value);
     }
-
-    return data;
+    return this.render();
   }
 
   /** @override */
@@ -62,31 +106,23 @@ export class LootList extends FormApplication {
     const items = await this._validateDrops(data);
     if (!items) return;
 
-    // append:
-    const list = this.element[0].querySelector(".item-list");
-    for (const {uuid, name} of items) {
-      // find any current row with the same item.
-      const found = this.element[0].querySelector(`[data-action="render"][data-uuid="${uuid}"]`);
-      const valueNode = !found ? false : found.closest(".item").querySelector(".item-quantity > input");
+    for (const {uuid, name} of items) this._updateQuantity(uuid);
+    this._warning("SimpleLootList.WarningAddedItems", {amount: items.length, name: this.clone.name}, "info");
+    return this.render();
+  }
 
-      // if no node, create new row.
-      if (!valueNode) {
-        const div = document.createElement("DIV");
-        const template = "modules/simple-loot-list/templates/lootListRow.hbs";
-        div.innerHTML = await renderTemplate(template, {value: 1, uuid, name});
-        div.querySelector("[data-action='render']").addEventListener("click", this._onClickItemName.bind(this));
-        div.querySelector("[data-action='delete']").addEventListener("click", this._onClickItemDelete.bind(this));
-        list.appendChild(div.firstChild);
-      }
-      // increase the value of the existing row.
-      else {
-        valueNode.value = dnd5e.dice.simplifyRollFormula(valueNode.value + "+1");
-      }
+  /**
+   * Update the quantity of an existing item on the list.
+   * @param {string} uuid                 The uuid of the item to update. Add it if not found.
+   * @param {string} [quantity=null]      A specific value to set it to, otherwise add 1.
+   */
+  _updateQuantity(uuid, quantity = null) {
+    const list = this._gatherItems();
+    const existing = list.find(e => e.uuid === uuid);
+    if (existing) existing.quantity = dnd5e.dice.simplifyRollFormula(quantity ? quantity : `${existing.quantity} + 1`);
+    else list.push({quantity: quantity ? quantity : "1", uuid: uuid});
+    this.clone.updateSource({[`flags.${MODULE}.loot-list`]: list});
 
-    }
-    if (items.length > 1) {
-      this._warning("SimpleLootList.WarningAddedItems", {amount: items.length, name: this.actor.name}, "info");
-    }
   }
 
   /** @override */
@@ -95,9 +131,9 @@ export class LootList extends FormApplication {
   }
 
   /** @override */
-  async _updateObject(event, formData) {
-    formData[`flags.${MODULE}.${ITEMS}`] = this._gatherItems();
-    return this.actor.update(formData);
+  async _updateObject() {
+    const update = this.clone.flags[MODULE];
+    return this.actor.update({[`flags.${MODULE}`]: update});
   }
 
   /** @override */
@@ -108,12 +144,13 @@ export class LootList extends FormApplication {
     html[0].querySelectorAll("[data-action='drop']").forEach(n => n.addEventListener("dragleave", this._onDragLeaveBox.bind(this)));
     html[0].querySelectorAll("[data-action='clear']").forEach(n => n.addEventListener("click", this._onClickClear.bind(this)));
     html[0].querySelectorAll("[data-action='grant']").forEach(n => n.addEventListener("click", this._onClickGrant.bind(this)));
+    html[0].querySelectorAll("input[type=text]").forEach(n => n.addEventListener("focus", event => event.currentTarget.select()));
   }
 
   /**
-   * Grant the loot list to the targeted token's actor.
+   * Grant the loot and currency list to the targeted token's actor.
    * @param {PointerEvent} event      The initiating click event.
-   * @returns {Item5e[]}              The created items.
+   * @returns {Promise<Item5e[]>}     The created items.
    */
   async _onClickGrant(event) {
     const lootArray = this._gatherItems();
@@ -139,7 +176,6 @@ export class LootList extends FormApplication {
       itemData.system.quantity = Math.max(1, total);
       if (itemData.system.attunement > 1) itemData.system.attunement = 1;
       delete itemData.system.equipped;
-      delete itemData.system.proficient;
       items.push(itemData);
     }
 
@@ -161,28 +197,36 @@ export class LootList extends FormApplication {
   /**
    * Remove all items on the sheet. This does not stick unless saved.
    * @param {PointerEvent} event      The initiating click event.
+   * @returns {LootList}
    */
   _onClickClear(event) {
-    this.element[0].querySelectorAll(".item").forEach(i => i.remove());
+    const currencies = {};
+    for (const key in CONFIG.DND5E.currencies) currencies[key] = 0;
+    this.clone.updateSource({[`flags.${MODULE}`]: {"loot-list": [], currencies}});
+    return this.render();
   }
 
   /**
    * Remove a single item on the sheet. This does not stick unless saved.
    * @param {PointerEvent} event      The initiating click event.
+   * @returns {LootList}
    */
   _onClickItemDelete(event) {
-    event.currentTarget.closest(".item").remove();
+    const uuid = event.currentTarget.closest("[data-uuid]").dataset.uuid;
+    const list = this._gatherItems();
+    list.findSplice(i => i.uuid === uuid);
+    this.clone.updateSource({[`flags.${MODULE}.loot-list`]: list});
+    return this.render();
   }
 
   /**
    * Render an item sheet by clicking its name.
-   * @param {PointerEvent} event      The initiating click event.
+   * @param {PointerEvent} event        The initiating click event.
+   * @returns {Promise<ItemSheet>}      The rendered item sheet.
    */
   async _onClickItemName(event) {
-    const target = event.currentTarget;
-    const item = await fromUuid(target.dataset.uuid);
-    if (!item) this._warning("SimpleLootList.WarningItemNotFoundName", {name: target.innerText});
-    else item.sheet.render(true);
+    const item = await fromUuid(event.currentTarget.closest("[data-uuid]").dataset.uuid);
+    return item.sheet.render(true);
   }
 
   /**
@@ -198,14 +242,7 @@ export class LootList extends FormApplication {
    * @returns {object[]}      An array of objects with quantity, uuid, and name.
    */
   _gatherItems() {
-    const data = [];
-    this.element[0].querySelectorAll(".item").forEach(n => {
-      const quantity = n.querySelector(".item-quantity > input").value;
-      const {dataset, innerText} = n.querySelector("[data-action='render']");
-      if (!quantity) return;
-      data.push({quantity, uuid: dataset.uuid, name: innerText});
-    });
-    return data;
+    return foundry.utils.getProperty(this.clone, `flags.${MODULE}.loot-list`) ?? [];
   }
 
   /**
@@ -213,11 +250,7 @@ export class LootList extends FormApplication {
    * @returns {object[]}      An array of objects with key and value.
    */
   _gatherCurrencies() {
-    const data = [];
-    this.element[0].querySelectorAll(".currency-list input").forEach(n => {
-      data.push({key: n.dataset.key, value: n.value});
-    });
-    return data;
+    return foundry.utils.getProperty(this.clone, `flags.${MODULE}.currencies`) ?? {}
   }
 
   /**
@@ -237,8 +270,8 @@ export class LootList extends FormApplication {
    * If a rolltable with at least 1 valid item in it, return that array.
    * If a compendium with at least 1 valid item in it, return that array.
    * If no valid items, returns false.
-   * @param {object} data           The dropped data object.
-   * @returns {Item5e[]|boolean}     The array of valid items, or false if none found.
+   * @param {object} data                     The dropped data object.
+   * @returns {Promise<Item5e[]|boolean>}     The array of valid items, or false if none found.
    */
   async _validateDrops(data) {
     const isFolder = data.type === "Folder";
@@ -266,8 +299,8 @@ export class LootList extends FormApplication {
 
   /**
    * Validate a single dropped item.
-   * @param {object} data             The dropped item's data.
-   * @returns {Item5e[]|boolean}      The single dropped item in an array, or false if invalid.
+   * @param {object} data                     The dropped item's data.
+   * @returns {Promise<Item5e[]|boolean>}     The single dropped item in an array, or false if invalid.
    */
   async _dropSingleItem(data) {
     const item = await fromUuid(data.uuid);
@@ -288,8 +321,8 @@ export class LootList extends FormApplication {
 
   /**
    * Validate a folder of items.
-   * @param {object} data             The dropped folder's data.
-   * @returns {Item5e[]|boolean}      The array of valid items, or false if none found.
+   * @param {object} data                     The dropped folder's data.
+   * @returns {Promise<Item5e[]|boolean>}     The array of valid items, or false if none found.
    */
   async _dropFolder(data) {
     const folder = await fromUuid(data.uuid);
@@ -314,8 +347,8 @@ export class LootList extends FormApplication {
 
   /**
    * Validate a dropped rolltable.
-   * @param {object} data             The dropped table's data.
-   * @returns {Item5e[]|boolean}      The array of valid items, or false if none found.
+   * @param {object} data                     The dropped table's data.
+   * @returns {Promise<Item5e[]|boolean>}     The array of valid items, or false if none found.
    */
   async _dropRollTable(data) {
     const table = await fromUuid(data.uuid);
@@ -352,8 +385,8 @@ export class LootList extends FormApplication {
 
   /**
    * Validate a dropped compendium.
-   * @param {object} data           The dropped pack's data.
-   * @returns {Item[]|boolean}      The array of valid items, or false if none found.
+   * @param {object} data                   The dropped pack's data.
+   * @returns {Promise<Item[]|boolean>}     The array of valid items, or false if none found.
    */
   async _dropPack(data) {
     const pack = game.packs.get(data.id);
@@ -378,3 +411,5 @@ export class LootList extends FormApplication {
     return items;
   }
 }
+
+Hooks.once("init", LootList.init);

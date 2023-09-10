@@ -1,10 +1,4 @@
-.simple-loot-list.window-app {
-  height: auto !important;
-  width: 550px !important;
-}
-
 .simple-loot-list [data-action="drop"] {
-  height: 100px;
   border-radius: 20px;
   text-align: center;
   backdrop-filter: contrast(0.75);
@@ -12,76 +6,58 @@
   padding: calc(50px - 1em);
   border-style: dotted;
   border-color: lightgray;
+  margin-bottom: 5px;
 }
-
 .simple-loot-list [data-action="drop"].drag-over {
   border-color: black;
 }
-
-.simple-loot-list .currency-section {
-  padding-top: 5px;
-}
-
 .simple-loot-list .item-header,
 .simple-loot-list .currency-header {
   height: 28px;
   background: rgba(0, 0, 0, 0.1);
   border: 1px solid var(--color-border-light-tertiary);
   font-weight: bold;
-  align-content: center;
-  display: grid;
-  grid-template-columns: 1fr 5fr;
+  display: flex;
+  align-items: center;
+  padding: 5px 0;
 }
-
 .simple-loot-list .currency-header {
-  padding: 5px;
+  padding-left: 5px;
 }
-
-.simple-loot-list .header-quantity {
-  text-align: center;
-}
-
 .simple-loot-list .item-list {
   padding-left: 0;
-  margin: 0.25em 0;
   max-height: 500px;
   overflow-y: scroll;
+  gap: 5px;
+  display: flex;
+  flex-direction: column;
 }
-
-.simple-loot-list .item {
-  align-items: center;
-  padding: 0.25em 0;
-  display: grid;
-  grid-template-columns: 1fr 5fr 0fr;
-}
-
 .simple-loot-list .currency-list {
   padding-left: 0;
   display: flex;
+  justify-content: space-between;
 }
-
 .simple-loot-list .currency {
   display: flex;
+  flex: 0;
   align-items: center;
   gap: 5px;
-  padding: 0 5px;
 }
-
-.simple-loot-list .item-quantity {
+.simple-loot-list .currency input {
+  min-width: 3em;
+}
+.simple-loot-list .item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.simple-loot-list .item-quantity,
+.simple-loot-list .header-quantity {
   text-align: center;
+  flex-basis: 6em;
 }
-
 .simple-loot-list [data-action="render"] {
   font-weight: bold;
-  padding: 0.25em 0 0.25em 0.5em;
-}
-
-.simple-loot-list a[data-action="delete"] {
-  min-width: 1.5em;
-}
-
-.simple-loot-list .item-list-button-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 0.25em;
+  flex: 1;
+  padding: 0 5px;
 }

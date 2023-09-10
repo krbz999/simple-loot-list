@@ -2,32 +2,32 @@
 
   <div data-action="drop">{{localize "SimpleLootList.DropItem"}}</div>
 
-  <section class="currency-section">
+  <section>
     <header class="currency-header">
       {{localize "SimpleLootList.Currencies"}}
     </header>
     <ol class="currency-list">
       {{#each currencies}}
       <li class="currency">
-        <div class="currency-label">{{label}}</div>
+        <label>{{label}}</label>
         <input type="text" data-key="{{key}}" name="flags.simple-loot-list.currencies.{{key}}" value="{{value}}">
       </li>
       {{/each}}
     </ol>
   </section>
 
-  <section class="item-section">
+  <section>
 
     <header class="item-header">
       <div class="header-quantity">{{localize "SimpleLootList.Quantity"}}</div>
-      <div class="header-name">{{localize "SimpleLootList.Item"}}</div>
+      <div>{{localize "SimpleLootList.Item"}}</div>
     </header>
 
     <ol class="item-list">
       {{#each lootItems}}
-      <li class="item">
+      <li class="item" data-uuid="{{uuid}}">
         <div class="item-quantity"><input type="text" value="{{quantity}}"></div>
-        <a data-action="render" data-uuid="{{uuid}}">{{name}}</a>
+        <a data-action="render">{{name}}</a>
         <a data-action="delete"><i class="fa-solid fa-trash"></i></a>
       </li>
       {{/each}}
@@ -35,7 +35,7 @@
 
   </section>
 
-  <div class="item-list-button-row flexrow">
+  <div class="flexrow">
     <button data-action="submit" type="submit">
       <i class="fa-solid fa-save"></i> {{localize "SimpleLootList.SaveList"}}
     </button>
