@@ -1,3 +1,5 @@
+Interested in following along with development of any of my modules? Join the [Discord server](https://discord.gg/QAG8eWABGT). 
+
 # Simple Loot List
 
 This module adds a secondary inventory list on an actor, where a GM can place loot. Simply open the interface and drag items in. The GM can find the button in the header of any actor.
