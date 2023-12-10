@@ -16,3 +16,16 @@ At the bottom are four buttons:
 - Clear: to clear all items from the list. Remember to hit Save List afterwards.
 - Grant to Target: grants all the items to the user's target (press T when hovering over a token to target them). This will grant all the items to the target, rolling the quantity, and populating roll formulas with the target's roll data if necessary.
 - Cancel: closes the list without saving.
+
+### API
+API Methods available in `game.modules.get("simple-loot-list").api`.
+
+```js
+/**
+ * Add items to the actor's loot list.
+ * @param {Actor} actor           The actor with the loot list.
+ * @param {Item[]} items          The items to add.
+ * @returns {Promise<Actor>}      The updated actor.
+ */
+async addItemsToActor(actor, items)
+```
