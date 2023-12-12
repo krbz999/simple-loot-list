@@ -152,7 +152,7 @@ class LootList extends FormApplication {
   /**
    * Grant the loot and currency list to the targeted token's actor.
    * @param {PointerEvent} event      The initiating click event.
-   * @returns {Promise<Item5e[]>}     The created items.
+   * @returns {Promise<void>}
    */
   async _onClickGrant(event) {
     const lootArray = this._gatherItems();
@@ -164,8 +164,10 @@ class LootList extends FormApplication {
     }
 
     const items = [];
+    const itemUpdates = [];
     const update = {};
     const data = target.getRollData();
+    let created = 0;
 
     for (const {quantity, uuid} of lootArray) {
       const item = await fromUuid(uuid);
@@ -178,10 +180,14 @@ class LootList extends FormApplication {
       itemData.system.quantity = Math.max(1, total);
       if (itemData.system.attunement > 1) itemData.system.attunement = 1;
       delete itemData.system.equipped;
-      items.push(itemData);
-    }
 
-    for (const {key, value} of currencies) {
+      const existing = target.items.find(item => item.flags.core?.sourceId === uuid);
+      if (existing && ["loot", "consumable"].includes(existing.type)) {
+        itemUpdates.push({_id: existing.id, "system.quantity": existing.system.quantity + itemData.system.quantity})
+      } else items.push(itemData);
+      created += itemData.system.quantity;
+    }
+    for (const [key, value] of Object.entries(currencies)) {
       try {
         const {total} = await new Roll(value, data).evaluate();
         update[`system.currency.${key}`] = target.system.currency[key] + Math.max(0, total);
@@ -191,9 +197,9 @@ class LootList extends FormApplication {
     }
 
     await target.update(update);
-    const created = await target.createEmbeddedDocuments("Item", items);
-    this._warning("SimpleLootList.WarningCreatedItems", {amount: created.length, name: target.name}, "info");
-    return created;
+    await target.updateEmbeddedDocuments("Item", itemUpdates);
+    await target.createEmbeddedDocuments("Item", items);
+    this._warning("SimpleLootList.WarningCreatedItems", {amount: created, name: target.name}, "info");
   }
 
   /**
@@ -249,10 +255,12 @@ class LootList extends FormApplication {
 
   /**
    * Read all currencies on the sheet.
-   * @returns {object[]}      An array of objects with key and value.
+   * @returns {object}      An object with the currency keys and value (string).
    */
   _gatherCurrencies() {
-    return foundry.utils.getProperty(this.clone, `flags.${MODULE}.currencies`) ?? {}
+    const curr = foundry.utils.getProperty(this.clone, `flags.${MODULE}.currencies`) ?? {};
+    for (const k in curr) if (!(k in CONFIG.DND5E.currencies)) delete curr[k];
+    return curr;
   }
 
   /**
