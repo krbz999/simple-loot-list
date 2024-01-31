@@ -29,7 +29,7 @@ class LootList extends FormApplication {
   }
 
   constructor(actor, options = {}) {
-    super(actor, options = {});
+    super(actor, options);
     this.actor = actor;
     this.clone = actor.clone({}, {keepId: true});
   }
@@ -169,8 +169,11 @@ class LootList extends FormApplication {
     const data = target.getRollData();
     let created = 0;
 
-    for (const {quantity, uuid} of lootArray) {
-      const item = await fromUuid(uuid);
+    const lootItemArray = await Promise.all(lootArray.map(async ({quantity, uuid}) => {
+      return [quantity, uuid, await fromUuid(uuid)];
+    }));
+
+    for (const [quantity, uuid, item] of lootItemArray) {
       if (!item) {
         this._warning("SimpleLootList.WarningItemNotFound", {uuid});
         continue;
@@ -362,18 +365,13 @@ class LootList extends FormApplication {
    */
   async _dropRollTable(data) {
     const table = await fromUuid(data.uuid);
+    const TYPES = CONST.TABLE_RESULT_TYPES;
     // Must have valid results embedded.
     const uuids = table.results.filter(result => {
-      if (![
-        CONST.TABLE_RESULT_TYPES.DOCUMENT,
-        CONST.TABLE_RESULT_TYPES.COMPENDIUM
-      ].includes(result.type)) return false;
-      return !!result.documentCollection;
+      return [TYPES.DOCUMENT, TYPES.COMPENDIUM].includes(result.type) && !!result.documentCollection;
     }).map(result => {
-      if (result.type === CONST.TABLE_RESULT_TYPES.DOCUMENT) {
-        return `${result.documentCollection}.${result.documentId}`;
-      }
-      return `Compendium.${result.documentCollection}.${result.documentId}`;
+      if (result.type === TYPES.DOCUMENT) return `${result.documentCollection}.${result.documentId}`;
+      return `Compendium.${result.documentCollection}.Item.${result.documentId}`;
     });
 
     if (!uuids.length) {
@@ -382,8 +380,9 @@ class LootList extends FormApplication {
     }
 
     // Get the items and check validity.
-    let items = await Promise.all(uuids.map(uuid => fromUuid(uuid)));
-    items = items.filter(item => (!item || !this.validItemTypes.includes(item.type)));
+    const promises = uuids.map(uuid => fromUuid(uuid));
+    const resolved = await Promise.all(promises);
+    const items = resolved.filter(r => this.validItemTypes.includes(r?.type));
 
     if (!items.length) {
       this._warning("SimpleLootList.WarningEmptyDocument");
