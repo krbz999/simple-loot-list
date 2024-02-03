@@ -61,7 +61,7 @@ class LootList extends FormApplication {
    * @returns {string[]}      The array of item types.
    */
   static get validItemTypes() {
-    return ["weapon", "equipment", "consumable", "tool", "loot", "backpack"];
+    return ["weapon", "equipment", "consumable", "tool", "loot", "container"];
   }
   get validItemTypes() {
     return this.constructor.validItemTypes;
