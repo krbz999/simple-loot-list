@@ -19,7 +19,8 @@ class LootList extends FormApplication {
         onclick: async () => new LootList(app.document).render(true),
         label: game.i18n.localize("SimpleLootList.Header")
       };
-      if (!game.settings.get(MODULE, "headerLabel")) delete listButton.label;
+      const isChar2 = app.constructor.name === "ActorSheet5eCharacter2";
+      if (!isChar2 && !game.settings.get(MODULE, "headerLabel")) delete listButton.label;
       array.unshift(listButton);
     });
 
@@ -58,10 +59,10 @@ class LootList extends FormApplication {
 
   /**
    * Get the item types that can have quantity and price.
-   * @returns {string[]}      The array of item types.
+   * @returns {Set<string>}     The valid item types.
    */
   static get validItemTypes() {
-    return ["weapon", "equipment", "consumable", "tool", "loot", "container"];
+    return new Set(["weapon", "equipment", "consumable", "tool", "loot", "container"]);
   }
   get validItemTypes() {
     return this.constructor.validItemTypes;
@@ -85,7 +86,7 @@ class LootList extends FormApplication {
   /** @override */
   async _onChangeInput(event) {
     const key = event.currentTarget.dataset.key;
-    if (key in CONFIG.DND5E.currencies) {
+    if (CONFIG.DND5E.currencies[key]) {
       const data = this._getSubmitData();
       this.clone.updateSource(data);
     } else {
@@ -110,8 +111,8 @@ class LootList extends FormApplication {
 
   /**
    * Update the quantity of an existing item on the list.
-   * @param {string} uuid                 The uuid of the item to update. Add it if not found.
-   * @param {string} [quantity=null]      A specific value to set it to, otherwise add 1.
+   * @param {string} uuid           The uuid of the item to update. Add it if not found.
+   * @param {string} [quantity]     A specific value to set it to, otherwise add 1.
    */
   _updateQuantity(uuid, quantity = null) {
     const list = this._gatherItems();
@@ -199,10 +200,28 @@ class LootList extends FormApplication {
       }
     }
 
+    /**
+     * A hook that is called before updates are performed.
+     * @param {Actor} actor               The target to receive currencies and items.
+     * @param {object} update             The update that will be performed on the target.
+     * @param {object[]} itemUpdates      The updates to existing items.
+     * @param {object[]} itemData         The item data for new items to be created.
+     */
+    Hooks.callAll("simple-loot-list.preGrantItems", target, update, itemUpdates, items);
+
     await target.update(update);
     await target.updateEmbeddedDocuments("Item", itemUpdates);
     await target.createEmbeddedDocuments("Item", items);
     this._warning("SimpleLootList.WarningCreatedItems", {amount: created, name: target.name}, "info");
+
+    /**
+     * A hook that is called after updates are performed.
+     * @param {Actor} actor               The target to receive currencies and items.
+     * @param {object} update             The update that will be performed on the target.
+     * @param {object[]} itemUpdates      The updates to existing items.
+     * @param {object[]} itemData         The item data for new items to be created.
+     */
+    Hooks.callAll("simple-loot-list.grantItems", target, update, itemUpdates, items);
   }
 
   /**
@@ -324,7 +343,7 @@ class LootList extends FormApplication {
     }
 
     // Must be a valid item type.
-    if (!this.validItemTypes.includes(item.type)) {
+    if (!this.validItemTypes.has(item.type)) {
       this._warning("SimpleLootList.WarningInvalidDocument", {type: item.type});
       return false;
     }
@@ -347,7 +366,7 @@ class LootList extends FormApplication {
 
     // Must have at least one valid item.
     const items = folder.contents.filter(item => {
-      return this.validItemTypes.includes(item.type);
+      return this.validItemTypes.has(item.type);
     });
 
     if (!items.length) {
@@ -382,7 +401,7 @@ class LootList extends FormApplication {
     // Get the items and check validity.
     const promises = uuids.map(uuid => fromUuid(uuid));
     const resolved = await Promise.all(promises);
-    const items = resolved.filter(r => this.validItemTypes.includes(r?.type));
+    const items = resolved.filter(r => this.validItemTypes.has(r?.type));
 
     if (!items.length) {
       this._warning("SimpleLootList.WarningEmptyDocument");
@@ -405,7 +424,7 @@ class LootList extends FormApplication {
     }
     const index = await pack.getIndex({fields: ["system.quantity"]});
     const items = index.reduce((acc, item) => {
-      if (!this.validItemTypes.includes(item.type)) return acc;
+      if (!this.validItemTypes.has(item.type)) return acc;
       return acc.concat([{...item, quantity: item.system.quantity}]);
     }, []);
     if (!items.length) {
@@ -429,7 +448,7 @@ class LootList extends FormApplication {
    */
   static async addItemsToActor(actor, items) {
     items = items.filter(item => {
-      return !item.isOwned && (item instanceof Item) && LootList.validItemTypes.includes(item.type);
+      return !item.isEmbedded && (item instanceof Item) && LootList.validItemTypes.has(item.type);
     });
     const current = foundry.utils.deepClone(actor.getFlag(MODULE, "loot-list") ?? []);
     for (const item of items) {
