@@ -13,13 +13,13 @@
   ],
   "compatibility": {
     "minimum": "11.315",
-    "maximum": "11",
-    "verified": "11"
+    "maximum": "12",
+    "verified": "12"
   },
   "esmodules": ["module/module.mjs"],
   "styles": ["module/module.css"],
   "relationships": {
-    "systems": [{"id": "dnd5e", "minimum": "3.0.0", "maximum": "3.0.9"}]
+    "systems": [{"id": "dnd5e", "minimum": "3.2.0", "maximum": "3.2.9"}]
   },
   "languages": [
     {

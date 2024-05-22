@@ -182,7 +182,7 @@ class LootList extends FormApplication {
       const {total} = await new Roll(quantity, data).evaluate();
       const itemData = game.items.fromCompendium(item);
       itemData.system.quantity = Math.max(1, total);
-      if (itemData.system.attunement > 1) itemData.system.attunement = 1;
+      delete itemData.system.attuned;
       delete itemData.system.equipped;
 
       const existing = target.items.find(item => item.flags.core?.sourceId === uuid);
