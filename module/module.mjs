@@ -19,8 +19,8 @@ class LootList extends FormApplication {
         onclick: async () => new LootList(app.document).render(true),
         label: game.i18n.localize("SimpleLootList.Header")
       };
-      const isChar2 = app.constructor.name === "ActorSheet5eCharacter2";
-      if (!isChar2 && !game.settings.get(MODULE, "headerLabel")) delete listButton.label;
+      const isV2 = ["ActorSheet5eCharacter2", "ActorSheet5eNPC2"].includes(app.constructor.name);
+      if (!isV2 && !game.settings.get(MODULE, "headerLabel")) delete listButton.label;
       array.unshift(listButton);
     });
 
@@ -185,7 +185,7 @@ class LootList extends FormApplication {
       delete itemData.system.attuned;
       delete itemData.system.equipped;
 
-      const existing = target.items.find(item => item.flags.core?.sourceId === uuid);
+      const existing = target.items.find(item => item._stats.compendiumSource === uuid);
       if (existing && ["loot", "consumable"].includes(existing.type)) {
         itemUpdates.push({_id: existing.id, "system.quantity": existing.system.quantity + itemData.system.quantity})
       } else items.push(itemData);

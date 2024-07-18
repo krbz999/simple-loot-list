@@ -19,7 +19,7 @@
   "esmodules": ["module/module.mjs"],
   "styles": ["module/module.css"],
   "relationships": {
-    "systems": [{"id": "dnd5e", "minimum": "3.2.0", "maximum": "3.2.9"}]
+    "systems": [{"id": "dnd5e", "compatibility": {"minimum": "3.3.0", "maximum": "3.3.9"}}]
   },
   "languages": [
     {
