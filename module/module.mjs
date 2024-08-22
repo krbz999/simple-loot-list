@@ -1,6 +1,9 @@
 const MODULE = "simple-loot-list";
 
 class LootList extends FormApplication {
+  /**
+   * Initialize module.
+   */
   static init() {
     game.settings.register(MODULE, "headerLabel", {
       name: "SimpleLootList.SettingHeaderLabel",
@@ -29,21 +32,31 @@ class LootList extends FormApplication {
     };
   }
 
+  /* -------------------------------------------------- */
+
   constructor(actor, options = {}) {
     super(actor, options);
     this.actor = actor;
     this.clone = actor.clone({}, {keepId: true});
   }
 
+  /* -------------------------------------------------- */
+  /*   Properties                                       */
+  /* -------------------------------------------------- */
+
   /** @override */
   get title() {
     return game.i18n.format("SimpleLootList.Title", {name: this.actor.name});
   }
 
+  /* -------------------------------------------------- */
+
   /** @override */
   get id() {
     return `${MODULE}-${this.actor.uuid.replaceAll(".", "-")}`;
   }
+
+  /* -------------------------------------------------- */
 
   /** @override */
   static get defaultOptions() {
@@ -57,6 +70,8 @@ class LootList extends FormApplication {
     });
   }
 
+  /* -------------------------------------------------- */
+
   /**
    * Get the item types that can have quantity and price.
    * @returns {Set<string>}     The valid item types.
@@ -64,9 +79,20 @@ class LootList extends FormApplication {
   static get validItemTypes() {
     return new Set(["weapon", "equipment", "consumable", "tool", "loot", "container"]);
   }
+
+  /* -------------------------------------------------- */
+
+  /**
+   * Get the item types that can have quantity and price.
+   * @returns {Set<string>}     The valid item types.
+   */
   get validItemTypes() {
     return this.constructor.validItemTypes;
   }
+
+  /* -------------------------------------------------- */
+  /*   Rendering                                        */
+  /* -------------------------------------------------- */
 
   /** @override */
   async getData(options = {}) {
@@ -83,6 +109,10 @@ class LootList extends FormApplication {
     };
   }
 
+  /* -------------------------------------------------- */
+  /*   Event handlers                                   */
+  /* -------------------------------------------------- */
+
   /** @override */
   async _onChangeInput(event) {
     const key = event.currentTarget.dataset.key;
@@ -95,6 +125,8 @@ class LootList extends FormApplication {
     }
     return this.render();
   }
+
+  /* -------------------------------------------------- */
 
   /** @override */
   async _onDrop(event) {
@@ -109,6 +141,8 @@ class LootList extends FormApplication {
     return this.render();
   }
 
+  /* -------------------------------------------------- */
+
   /**
    * Update the quantity of an existing item on the list.
    * @param {string} uuid           The uuid of the item to update. Add it if not found.
@@ -122,16 +156,22 @@ class LootList extends FormApplication {
     this.clone.updateSource({[`flags.${MODULE}.loot-list`]: list});
   }
 
+  /* -------------------------------------------------- */
+
   /** @override */
   async _onDragOver(event) {
     event.target.closest("[data-action='drop']")?.classList.add("drag-over");
   }
+
+  /* -------------------------------------------------- */
 
   /** @override */
   async _updateObject() {
     const update = this.clone.flags[MODULE];
     return this.actor.update({[`flags.${MODULE}`]: update});
   }
+
+  /* -------------------------------------------------- */
 
   /** @override */
   activateListeners(html) {
@@ -149,6 +189,8 @@ class LootList extends FormApplication {
       n.addEventListener("focus", event => event.currentTarget.select());
     });
   }
+
+  /* -------------------------------------------------- */
 
   /**
    * Grant the loot and currency list to the targeted token's actor.
@@ -180,8 +222,9 @@ class LootList extends FormApplication {
         continue;
       }
       const {total} = await new Roll(quantity, data).evaluate();
+      if (total < 1) continue;
       const itemData = game.items.fromCompendium(item);
-      itemData.system.quantity = Math.max(1, total);
+      itemData.system.quantity = total;
       delete itemData.system.attuned;
       delete itemData.system.equipped;
 
@@ -224,40 +267,45 @@ class LootList extends FormApplication {
     Hooks.callAll("simple-loot-list.grantItems", target, update, itemUpdates, items);
   }
 
+  /* -------------------------------------------------- */
+
   /**
    * Remove all items on the sheet. This does not stick unless saved.
    * @param {PointerEvent} event      The initiating click event.
-   * @returns {LootList}
    */
   _onClickClear(event) {
     const currencies = {};
     for (const key in CONFIG.DND5E.currencies) currencies[key] = 0;
     this.clone.updateSource({[`flags.${MODULE}`]: {"loot-list": [], currencies}});
-    return this.render();
+    this.render();
   }
+
+  /* -------------------------------------------------- */
 
   /**
    * Remove a single item on the sheet. This does not stick unless saved.
    * @param {PointerEvent} event      The initiating click event.
-   * @returns {LootList}
    */
   _onClickItemDelete(event) {
     const uuid = event.currentTarget.closest("[data-uuid]").dataset.uuid;
     const list = this._gatherItems();
     list.findSplice(i => i.uuid === uuid);
     this.clone.updateSource({[`flags.${MODULE}.loot-list`]: list});
-    return this.render();
+    this.render();
   }
+
+  /* -------------------------------------------------- */
 
   /**
    * Render an item sheet by clicking its name.
-   * @param {PointerEvent} event        The initiating click event.
-   * @returns {Promise<ItemSheet>}      The rendered item sheet.
+   * @param {PointerEvent} event      The initiating click event.
    */
   async _onClickItemName(event) {
     const item = await fromUuid(event.currentTarget.closest("[data-uuid]").dataset.uuid);
-    return item.sheet.render(true);
+    item.sheet.render(true);
   }
+
+  /* -------------------------------------------------- */
 
   /**
    * Remove the 'active' class from the drop area when left.
@@ -267,6 +315,8 @@ class LootList extends FormApplication {
     event.currentTarget.classList.remove("drag-over");
   }
 
+  /* -------------------------------------------------- */
+
   /**
    * Read all items on the sheet.
    * @returns {object[]}      An array of objects with quantity, uuid, and name.
@@ -274,6 +324,8 @@ class LootList extends FormApplication {
   _gatherItems() {
     return foundry.utils.getProperty(this.clone, `flags.${MODULE}.loot-list`) ?? [];
   }
+
+  /* -------------------------------------------------- */
 
   /**
    * Read all currencies on the sheet.
@@ -285,6 +337,8 @@ class LootList extends FormApplication {
     return curr;
   }
 
+  /* -------------------------------------------------- */
+
   /**
    * Helper method to display a warning for various reasons.
    * @param {string} string             The string to localize.
@@ -294,6 +348,8 @@ class LootList extends FormApplication {
   _warning(string, obj = {}, type = "warn") {
     ui.notifications[type](game.i18n.format(string, obj));
   }
+
+  /* -------------------------------------------------- */
 
   /**
    * Validate the dropped document and return an array of valid items from it.
@@ -329,6 +385,8 @@ class LootList extends FormApplication {
     if (isPack) return this._dropPack(data);
   }
 
+  /* -------------------------------------------------- */
+
   /**
    * Validate a single dropped item.
    * @param {object} data                     The dropped item's data.
@@ -350,6 +408,8 @@ class LootList extends FormApplication {
 
     return [item];
   }
+
+  /* -------------------------------------------------- */
 
   /**
    * Validate a folder of items.
@@ -376,6 +436,8 @@ class LootList extends FormApplication {
 
     return items;
   }
+
+  /* -------------------------------------------------- */
 
   /**
    * Validate a dropped rolltable.
@@ -411,6 +473,8 @@ class LootList extends FormApplication {
     return items;
   }
 
+  /* -------------------------------------------------- */
+
   /**
    * Validate a dropped compendium.
    * @param {object} data                   The dropped pack's data.
@@ -434,11 +498,9 @@ class LootList extends FormApplication {
     return items;
   }
 
-  /* -------------------------------------- */
-  /*                                        */
-  /*              API METHODS               */
-  /*                                        */
-  /* -------------------------------------- */
+  /* -------------------------------------------------- */
+  /*   Api methods                                      */
+  /* -------------------------------------------------- */
 
   /**
    * Add items to the actor's loot list.
